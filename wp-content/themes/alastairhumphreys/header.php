@@ -102,7 +102,7 @@
 								'menu_class'		=> 'menu clearfix'
 							)); ?>
 
-							<?php //get_template_part('content', 'dropdown'); ?>
+							<?php get_template_part('content', 'dropdown'); ?>
 						</nav>
 					</div>
 				</div>

@@ -1133,33 +1133,52 @@ p {
     font-size: 24px;
     line-height: 36px; } }
 /* Forms */
-form input[type="text"],
-form input[type="email"],
-form textarea,
-form select {
-  border: 1px solid #e1e1e1;
-  border-radius: 2px;
-  color: #666;
-  display: block;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px; }
-
-form input[type="text"],
-form input[type="email"],
-form textarea {
-  padding: 6px 10px; }
-
-form select {
-  padding: 5px 6px 5px 10px; }
-
-form div p {
-  color: #666; }
-
-form div p em {
-  color: red; }
-
-form p {
-  margin: 0 0 2px; }
+form {
+  /* Newsletter & Search */ }
+  form input[type="text"],
+  form input[type="email"],
+  form textarea,
+  form select {
+    border: 1px solid #e1e1e1;
+    border-radius: 2px;
+    color: #666;
+    display: block;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px; }
+  form input[type="text"],
+  form input[type="email"],
+  form textarea {
+    padding: 6px 10px; }
+  form select {
+    padding: 5px 6px 5px 10px; }
+  form div p {
+    color: #666; }
+    form div p em {
+      color: red; }
+  form p {
+    margin: 0 0 2px; }
+  form.search input[type="text"], form.newsletter input[type="text"] {
+    border: 1px solid #d0d0d0;
+    border-right: 0;
+    border-radius: 2px 0 0 2px;
+    color: #797979;
+    float: left;
+    font-size: 11px;
+    line-height: 14px;
+    padding: 6px 5px 5px; }
+  form.search input[type="submit"], form.newsletter input[type="submit"] {
+    background: black;
+    border: none;
+    border-radius: 0 2px 2px 0;
+    color: white;
+    float: left;
+    font: 12px/22px din-light, sans-serif;
+    height: 27px;
+    overflow: hidden;
+    padding: 3px 10px 1px;
+    text-transform: uppercase; }
+    form.search input[type="submit"]:hover, form.newsletter input[type="submit"]:hover {
+      color: #e0e0e0; }
 
 .main form input[type="text"],
 .main form textarea,
@@ -1174,35 +1193,6 @@ div.wpcf7-mail-sent-ok {
 div.wpcf7-response-output {
   margin: 0;
   padding: 4px 10px; }
-
-/* Newsletter & Search */
-form.newsletter input[type="text"],
-form.search input[type="text"] {
-  border: 1px solid #d0d0d0;
-  border-right: 0;
-  border-radius: 2px 0 0 2px;
-  color: #797979;
-  float: left;
-  font-size: 11px;
-  line-height: 14px;
-  padding: 6px 5px 5px; }
-
-form.newsletter input[type="submit"],
-form.search input[type="submit"] {
-  background: black;
-  border: none;
-  border-radius: 0 2px 2px 0;
-  color: white;
-  float: left;
-  font: 12px/22px din-light, sans-serif;
-  height: 27px;
-  overflow: hidden;
-  padding: 3px 10px 1px;
-  text-transform: uppercase; }
-
-form.newsletter input[type="submit"]:hover,
-form.search input[type="submit"]:hover {
-  color: #e0e0e0; }
 
 /* Newsletter Form */
 form.newsletter input[type="text"] {
@@ -1429,9 +1419,11 @@ nav {
         background: #3a3a3a;
         color: #fff;
         text-decoration: none; }
-      nav .menu > li:last-child .sub-menu {
+      nav .menu > li .sub-menu {
         left: auto;
         right: 0; }
+        nav .menu > li .sub-menu li:last-child a {
+          margin: 0; }
     nav .menu .sub-menu {
       background: #fff;
       border: 1px solid #ccc;
@@ -1451,34 +1443,103 @@ nav {
     nav .menu li:hover .sub-menu {
       display: block; }
 
-/* Dropdown 
-nav .dropdown {background:#fff; display:none; right:0; padding:25px; position:absolute; top:67px; width:590px; z-index:10;
-	box-shadow:1px 3px 5px #333;
-}
-nav .active {display:block;}
-nav .dropdown .category {position:relative;}
-nav .dropdown .sub-title {clear:both; color:#272727; display:block; font:18px/24px din-light, sans-serif; margin-bottom:5px; text-transform:uppercase;}
-nav .dropdown .feature-image {display:inline-block; float:left; margin-right:20px;}
-nav .dropdown ul {display:inline-block; float:left; margin:0 7px 40px 0; width:152px;}
-nav .blog ul {border-right:1px dotted #999; margin:0 20px 40px 0; padding-right:20px; width:162px;}
-nav .category .feature-image img {width:215px;}
-nav .books .feature-image img {width:120px;}
-nav .dropdown ul.last {border-right:0; margin-right:0;}
-nav .dropdown ul li {display:block;}
-nav .dropdown ul li a {color:#272727; display:block; font:14px/18px din-light, sans-serif;}
-nav .dropdown .view-all {bottom:3px; position:absolute; right:0px;}
-nav .dropdown hr {margin:10px 0;}
+/* Dropdown */
+nav .dropdown {
+  background: #fff;
+  display: none;
+  right: 0;
+  padding: 25px;
+  position: absolute;
+  top: 50px;
+  width: 590px;
+  z-index: 10;
+  box-shadow: 1px 3px 5px #333; }
 
-nav .blog .view-all {right:69px;}
-nav .adventures .view-all {right:57px;}
-nav .microadventures .view-all {right:17px;}
-nav .speaking .view-all {right:71px;}
+nav .active {
+  display: block; }
 
-nav .latest-post {border-bottom:1px dotted #999; margin-bottom:20px; padding-bottom:20px;}
-nav .latest-post .post-text {float:left; width:350px;}
-nav .latest-post .post-text .sub-title {margin:0; text-transform:none;}
-nav .latest-post .post-text .excerpt {margin:5px 0;}
-*/
+nav .dropdown .category {
+  position: relative; }
+
+nav .dropdown .sub-title {
+  clear: both;
+  color: #272727;
+  display: block;
+  font: 18px/24px din-light, sans-serif;
+  margin-bottom: 5px;
+  text-transform: uppercase; }
+
+nav .dropdown .feature-image {
+  display: inline-block;
+  float: left;
+  margin-right: 20px; }
+
+nav .dropdown ul {
+  display: inline-block;
+  float: left;
+  margin: 0 7px 40px 0;
+  width: 152px; }
+
+nav .blog ul {
+  border-right: 1px dotted #999;
+  margin: 0 20px 40px 0;
+  padding-right: 20px;
+  width: 162px; }
+
+nav .category .feature-image img {
+  width: 215px; }
+
+nav .books .feature-image img {
+  width: 120px; }
+
+nav .dropdown ul.last {
+  border-right: 0;
+  margin-right: 0; }
+
+nav .dropdown ul li {
+  display: block; }
+
+nav .dropdown ul li a {
+  color: #272727;
+  display: block;
+  font: 14px/18px din-light, sans-serif; }
+
+nav .dropdown .view-all {
+  bottom: 3px;
+  position: absolute;
+  right: 0px; }
+
+nav .dropdown hr {
+  margin: 10px 0; }
+
+nav .blog .view-all {
+  right: 69px; }
+
+nav .adventures .view-all {
+  right: 57px; }
+
+nav .microadventures .view-all {
+  right: 17px; }
+
+nav .speaking .view-all {
+  right: 71px; }
+
+nav .latest-post {
+  border-bottom: 1px dotted #999;
+  margin-bottom: 20px;
+  padding-bottom: 20px; }
+
+nav .latest-post .post-text {
+  float: left;
+  width: 350px; }
+
+nav .latest-post .post-text .sub-title {
+  margin: 0;
+  text-transform: none; }
+
+nav .latest-post .post-text .excerpt {
+  margin: 5px 0; }
+
 /*
 nav .menu-item-10210, /* Microadventures 
 nav .menu-item-10072 {display:none !important;} /* Microadventures 

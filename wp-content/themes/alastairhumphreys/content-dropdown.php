@@ -22,7 +22,7 @@ $subNavs = array(
 			'Blog'
 		)
 	),
-	'Adventures' => array(
+	/*'Adventures' => array(
 		'menu_item' => 8483,
 		'type' => 'adventures',
 		'page_parents' => array(
@@ -36,13 +36,14 @@ $subNavs = array(
 			'microadventures'
 		)
 	),
-	/*'Books' => array(
+	'Books' => array(
 		'menu_item' => 8529, // Local
 		'type' => 'books',
 		'page_parents' => array(
 			'Books'
 		)
 	),*/
+	/*
 	'More' => array(
 		'menu_item' => 9206, // Local
 		'type' => 'more',
@@ -50,6 +51,7 @@ $subNavs = array(
 			'More'
 		)
 	)
+	*/
 );
 
 ?>

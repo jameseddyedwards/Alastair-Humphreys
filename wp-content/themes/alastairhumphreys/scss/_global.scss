@@ -66,10 +66,14 @@ nav {
 				text-decoration:none;
 			}
 
-			&:last-child {
-				.sub-menu {
-					left:auto;
-					right:0;
+			.sub-menu {
+				left:auto;
+				right:0;
+
+				li:last-child {
+					a {
+						margin:0;
+					}
 				}
 			}
 		}
@@ -103,8 +107,8 @@ nav {
 
 
 
-/* Dropdown 
-nav .dropdown {background:#fff; display:none; right:0; padding:25px; position:absolute; top:67px; width:590px; z-index:10;
+/* Dropdown */
+nav .dropdown {background:#fff; display:none; right:0; padding:25px; position:absolute; top:50px; width:590px; z-index:10;
 	box-shadow:1px 3px 5px #333;
 }
 nav .active {display:block;}
@@ -130,7 +134,6 @@ nav .latest-post {border-bottom:1px dotted #999; margin-bottom:20px; padding-bot
 nav .latest-post .post-text {float:left; width:350px;}
 nav .latest-post .post-text .sub-title {margin:0; text-transform:none;}
 nav .latest-post .post-text .excerpt {margin:5px 0;}
-*/
 
 /*
 nav .menu-item-10210, /* Microadventures 
