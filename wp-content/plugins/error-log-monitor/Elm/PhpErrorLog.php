@@ -22,18 +22,18 @@ class Elm_PhpErrorLog {
 		if ( !$errorLoggingEnabled ) {
 			return new WP_Error(
 				'log_errors_off',
-				'Error logging is disabled.'
+				__('Error logging is disabled.', 'error-log-monitor')
 			);
 		} else if ( empty($logFile) ) {
 			return new WP_Error(
 				'error_log_not_set',
-				'Error log filename is not set.'
+				__('Error log filename is not set.', 'error-log-monitor')
 			);
 		} else if ( (strpos($logFile, '/') === false) && (strpos($logFile, '\\') === false) ) {
 			return new WP_Error(
 				'error_log_uses_relative_path',
 				sprintf(
-					'The current error_log value <code>%s</code> is not supported. Please change it to an absolute path.',
+					__('The current error_log value <code>%s</code> is not supported. Please change it to an absolute path.', 'error-log-monitor'),
 					esc_html($logFile)
 				)
 			);
@@ -42,7 +42,7 @@ class Elm_PhpErrorLog {
 				return new WP_Error(
 					'error_log_not_accessible',
 					sprintf (
-						'The log file <code>%s</code> exists, but is not accessible. Please check file permissions.',
+						__('The log file <code>%s</code> exists, but is not accessible. Please check file permissions.', 'error-log-monitor'),
 						esc_html($logFile)
 					)
 				);
@@ -50,7 +50,7 @@ class Elm_PhpErrorLog {
 				return new WP_Error(
 					'error_log_not_found',
 					sprintf (
-						'The log file <code>%s</code> does not exist or is inaccessible.',
+						__('The log file <code>%s</code> does not exist or is inaccessible.', 'error-log-monitor'),
 						esc_html($logFile)
 					)
 				);
@@ -73,7 +73,7 @@ class Elm_PhpErrorLog {
 			return new WP_Error(
 				'error_log_fopen_failed',
 				sprintf(
-					'Could not open the log file "%s".',
+					__('Could not open the log file "%s".', 'error-log-monitor'),
 					esc_html($this->getFilename())
 				)
 			);

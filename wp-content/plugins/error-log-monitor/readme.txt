@@ -2,8 +2,8 @@
 Contributors: whiteshadow
 Tags: dashboard widget, administration, error reporting, admin, maintenance, php
 Requires at least: 3.4
-Tested up to: 4.4-alpha
-Stable tag: 1.3.1
+Tested up to: 4.6-alpha
+Stable tag: 1.3.3
 
 Adds a Dashboard widget that displays the latest messages from your PHP error log. It can also send logged errors to email.
 
@@ -45,6 +45,14 @@ Follow these steps to install the plugin on your site:
 2. Dashboard widget configuration screen.
 
 == Changelog ==
+
+= 1.3.3 =
+* Added i18n support.
+* Added an `elm_show_dashboard_widget` filter that lets other plugins show or hide the error log widget.
+* Tested with WP 4.5.1 and WP 4.6-alpha.
+
+= 1.3.2 =
+* Tested up to WP 4.5 (release candidate).
 
 = 1.3.1 =
 * Added support for Windows and Mac style line endings.

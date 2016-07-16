@@ -5,8 +5,11 @@ class Elm_Plugin {
 	 */
 	private $settings;
 	private $emailCronJob = null;
+	private $pluginFile = '';
 
 	public function __construct($pluginFile) {
+		$this->pluginFile = $pluginFile;
+
 		$this->settings = new scbOptions(
 			'ws_error_log_monitor_settings',
 			$pluginFile,
@@ -22,6 +25,12 @@ class Elm_Plugin {
 			)
 		);
 
+		if ( did_action('plugins_loaded') > 0 ) {
+			$this->loadTextDomain();
+		} else {
+			add_action('plugins_loaded', array($this, 'loadTextDomain'));
+		}
+
 		Elm_DashboardWidget::getInstance($this->settings, $this);
 		add_action('elm_settings_changed', array($this, 'updateEmailSchedule'));
 
@@ -32,6 +41,10 @@ class Elm_Plugin {
 				'callback' => array($this, 'emailErrors'),
 			)
 		);
+	}
+
+	public function loadTextDomain() {
+		load_plugin_textdomain('error-log-monitor', false, basename(dirname($this->pluginFile)));
 	}
 
 	/**
@@ -90,11 +103,12 @@ class Elm_Plugin {
 
 		if ( !empty($logEntries) ) {
 			$subject = sprintf(
-				'PHP errors logged on %s',
+				__('PHP errors logged on %s', 'error-log-monitor'),
 				site_url()
 			);
 			$body = sprintf(
-				"New PHP errors have been logged on %s\nHere are the last %d lines from %s:\n\n",
+				/* translators: 1: Site URL, 2: Number of lines, 3: Log file name */
+				__("New PHP errors have been logged on %1\$s\nHere are the last %2\$d lines from %3\$s:\n\n", 'error-log-monitor'),
 				site_url(),
 				count($logEntries),
 				$log->getFilename()

@@ -20,14 +20,19 @@ class Elm_DashboardWidget {
 	}
 
 	public function registerWidget() {
-		if ( current_user_can($this->requiredCapability) ) {
+		if ( $this->userCanSeeWidget() ) {
 			wp_add_dashboard_widget(
 				$this->widgetId,
-				'PHP Error Log',
+				/* translators: Dashboard widget name */
+				__('PHP Error Log', 'error-log-monitor'),
 				array($this, 'displayWidgetContents'),
 				array($this, 'handleSettingsForm')
 			);
 		}
+	}
+
+	private function userCanSeeWidget() {
+		return apply_filters('elm_show_dashboard_widget', current_user_can($this->requiredCapability));
 	}
 
 	public function displayWidgetContents() {
@@ -39,14 +44,14 @@ class Elm_DashboardWidget {
 		}
 
 		if ( isset($_GET['elm-log-cleared']) && !empty($_GET['elm-log-cleared']) ) {
-			echo '<p><strong>Log cleared.</strong></p>';
+			printf('<p><strong>%s</strong></p>', __('Log cleared.', 'error-log-monitor'));
 		}
 
 		$lines = $log->readLastLines($this->settings->get('widget_line_count'), true);
 		if ( is_wp_error($lines) ) {
 			printf('<p>%s</p>', $lines->get_error_message());
 		} else if ( empty($lines) ) {
-			echo '<p>The log file is empty.</p>';
+			printf('<p>%s</p>', __('The log file is empty.', 'error-log-monitor'));
 		} else {
 			if ($this->settings->get('sort_order') === 'reverse-chronological') {
 				$lines = array_reverse($lines);
@@ -72,15 +77,16 @@ class Elm_DashboardWidget {
 
 			echo '<p>';
 			printf(
-				'Log file: %s (%s) ',
+				/* translators: 1: Log file name, 2: Log file size */
+				__('Log file: %1$s (%2$s)', 'error-log-monitor') . ' ',
 				esc_html($log->getFilename()),
 				$this->formatByteCount($log->getFileSize(), 2)
 			);
 			printf(
 				'<a href="%s" class="button" onclick="return confirm(\'%s\');">%s</a>',
 				wp_nonce_url(admin_url('/index.php?elm-action=clear-log&noheader=1'), 'clear-log'),
-				'Are you sure you want to clear the error log?',
-				'Clear Log'
+				esc_js(__('Are you sure you want to clear the error log?', 'error-log-monitor')),
+				__('Clear Log', 'error-log-monitor')
 			);
 
 			echo '</p>';
@@ -90,25 +96,27 @@ class Elm_DashboardWidget {
 	private function displayConfigurationHelp($problem) {
 
 		$exampleCode = "ini_set('log_errors', 'On');\n" . "ini_set('error_log', '/full/path/to/php-errors.log');";
-		?>
-		<p>
-			<strong><?php echo $problem; ?></strong>
-		</p>
+		printf('<p><strong>%s</strong></p>', $problem);
 
-		<p>
-			To enable error logging, create an empty file named "php-errors.log".
+		echo '<p>';
+		_e(
+			'To enable error logging, create an empty file named "php-errors.log".
 			Place it in a directory that is not publicly accessible (preferably outside
 			your web root) and ensure it is writable by the web server.
-			Then add the following code to <code>wp-config.php</code>:
-		</p>
+			Then add the following code to <code>wp-config.php</code>:',
+			'error-log-monitor'
+		);
+		echo '</p>';
+		echo '<pre>', $exampleCode, '</pre>';
 
-		<pre><?php echo $exampleCode; ?></pre>
-
-		<p>
-			See also: <a href="http://codex.wordpress.org/Editing_wp-config.php#Configure_Error_Log">Editing wp-config.php</a>,
-			<a href="http://digwp.com/2009/07/monitor-php-errors-wordpress/">3 Ways To Monitor PHP Errors</a>
-		</p>
-		<?php
+		echo '<p>';
+		printf(
+			/* translators: Links to English-language articles about configuring error logging. */
+			__('See also: %s', 'error-log-monitor'),
+			'<a href="http://codex.wordpress.org/Editing_wp-config.php#Configure_Error_Log">Editing wp-config.php</a>,
+			 <a href="http://digwp.com/2009/07/monitor-php-errors-wordpress/">3 Ways To Monitor PHP Errors</a>'
+		);
+		echo '</p>';
 	}
 
 	public function handleSettingsForm() {
@@ -138,7 +146,7 @@ class Elm_DashboardWidget {
 
 		printf(
 			'<p><label>%s <input type="text" name="%s[widget_line_count]" value="%s" size="5"></label></p>',
-			'Number of lines to show:',
+			__('Number of lines to show:', 'error-log-monitor'),
 			esc_attr($this->widgetId),
 			esc_attr($this->settings->get('widget_line_count'))
 		);
@@ -147,14 +155,14 @@ class Elm_DashboardWidget {
 			'<p><label><input type="checkbox" name="%s[strip_wordpress_path]"%s> %s</label></p>',
 			esc_attr($this->widgetId),
 			$this->settings->get('strip_wordpress_path') ? ' checked="checked"' : '',
-			'Strip WordPress root directory from log messages'
+			__('Strip WordPress root directory from log messages', 'error-log-monitor')
 		);
 
 		printf(
 			'<p><label><input type="checkbox" name="%s[sort_order]" value="reverse-chronological" %s> %s</label></p>',
 			esc_attr($this->widgetId),
 			$this->settings->get('sort_order') === 'reverse-chronological' ? ' checked="checked"' : '',
-			'Reverse line order (most recent on top)'
+			__('Reverse line order (most recent on top)', 'error-log-monitor')
 		);
 
 		printf(
@@ -163,22 +171,22 @@ class Elm_DashboardWidget {
 				<input type="text" class="widefat" name="%1$s[send_errors_to_email]" id="%1$s-send_errors_to_email" value="%3$s">
 			</p>',
 			esc_attr($this->widgetId),
-			'Periodically email logged errors to:',
+			__('Periodically email logged errors to:', 'error-log-monitor'),
 			$this->settings->get('send_errors_to_email')
 		);
 
 		printf(
 			'<p><label>%s <select name="%s[email_interval]">',
-			'How often to send email (max):',
+			__('How often to send email (max):', 'error-log-monitor'),
 			esc_attr($this->widgetId)
 		);
 		$intervals = array(
-			'Every 10 minutes' => 10*60,
-			'Every 15 minutes' => 15*60,
-			'Every 30 minutes' => 30*60,
-			'Hourly'           => 60*60,
-			'Daily'            => 24*60*60,
-			'Weekly'           => 7*24*60*60,
+			__('Every 10 minutes', 'error-log-monitor') => 10*60,
+			__('Every 15 minutes', 'error-log-monitor') => 15*60,
+			__('Every 30 minutes', 'error-log-monitor') => 30*60,
+			__('Hourly', 'error-log-monitor')           => 60*60,
+			__('Daily', 'error-log-monitor')            => 24*60*60,
+			__('Weekly', 'error-log-monitor')           => 7*24*60*60,
 		);
 		foreach($intervals as $name => $interval) {
 			printf(
@@ -193,7 +201,7 @@ class Elm_DashboardWidget {
 
 	public function handleLogClearing() {
 		$doClearLog =  isset($_GET['elm-action']) && ($_GET['elm-action'] === 'clear-log')
-			&& check_admin_referer('clear-log') && current_user_can($this->requiredCapability);
+			&& check_admin_referer('clear-log') && $this->userCanSeeWidget();
 
 		if ( $doClearLog ) {
 			$log = Elm_PhpErrorLog::autodetect();
