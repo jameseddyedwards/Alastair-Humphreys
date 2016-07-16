@@ -1,6 +1,6 @@
 <div class="wpfc-checkbox-list">
 	<?php
-		$types = array("css", "js", "gif", "png", "jpg", "jpeg", "ttf", "otf", "woff", "less", "mp4");
+		$types = array("css", "js", "gif", "png", "jpg", "jpeg", "ttf", "otf", "woff", "less", "mp4", "svg", "eot");
 
         foreach ($types as $key => $value) {
             ?>

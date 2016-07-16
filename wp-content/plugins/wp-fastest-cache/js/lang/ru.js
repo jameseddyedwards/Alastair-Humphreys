@@ -31,7 +31,7 @@ window.wpfc.dictionary = {
 	"Cache System"	: "Кэширование",
 	"Enable"	: "Включено",
 	"New Post"	: "Новая запись",
-	"Clear all cache files when a post or page is published"	: "Очищать кэш при публикации новой записи или страницы",
+	"Clear cache files when a post or page is published"	: "Очищать кэш при публикации новой записи или страницы",
 	"Submit"	: "Сохранить настройки",
 	"Delete Now"	: "Очистить сейчас",
 	"You can delete all cache files"	: "Нажмите, чтобы удалить все файлы кэша.",
@@ -95,7 +95,7 @@ window.wpfc.dictionary = {
 	"Mobile Theme"	: "Мобильная тема",
 	"Image Optimization"	: "Оптимизация изображений",
 	"Optimize Image Tool"	: "Инструмент для оптимизации изображений",
-	"All JPEG"	: "Всего JPEG",
+	"All"	: "Всего",
 	"Pending"	: "Ожидают",
 	"Errors"	: "Ошибки",
 	"Optimized Images"	: "Сжато изображений",
@@ -132,7 +132,7 @@ window.wpfc.dictionary = {
 	"Read More"	: "Читайте подробнее",
 	"[Read More]"	: "[Читайте подробнее]",
 	"Mobile Cache"	: "Мобильный кэш",
-	"Optimize All JPEG"	: "Оптимизировать все JPEG",
+	"Optimize All"	: "Оптимизировать все",
 	"CDN Settings"	: "Настройки CDN",
 	"Only available in Premium version"	: "Доступно только в премиум-версии"
 };

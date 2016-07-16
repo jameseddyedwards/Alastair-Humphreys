@@ -92,7 +92,7 @@
 										<table width="100%" cellspacing="0" cellpadding="5" border="0" class="cond-line active-line">
 											<tbody>
 												<tr>
-													<td width="100" height="35" class="" style="padding-left:10px;font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;font-size: 12px;">If REQUEST_URI</td>
+													<td width="100" height="35" class="wpfc-condition-text" style="padding-left:10px;font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;font-size: 12px;">If REQUEST_URI</td>
 													<td class="" width="95">
 														<select name="wpfc-exclude-rule-prefix">
 															<option selected="" value=""></option>
@@ -105,6 +105,7 @@
 										    		<td width="300">
 										    			<div class="wpfc-exclude-rule-line-middle">
 										    				<input type="text" name="wpfc-exclude-rule-content" style="width:300px;">
+										    				<input type="hidden" name="wpfc-exclude-rule-type" style="width:300px;">
 										    			</div>
 										    		</td>
 										    	</tr>
@@ -148,6 +149,7 @@
 			this.rules = rules;
 			this.insert_existing_rules();
 			this.click_event_for_add_button();
+			this.reorder();
 		},
 		remove_rule: function(number){
 			jQuery("div.wpfc-exclude-item[wpfc-exclude-item-number='" + number + "']").remove();
@@ -169,8 +171,9 @@
 			item.attr("wpfc-exclude-item-number", number);
 			item.attr("prefix", e.prefix);
 			item.attr("content", e.content);
+			item.attr("type", e.type);
 
-			item.find(".wpfc-exclude-item-url").html(self.create_url_description(e.prefix, e.content));
+			item.find(".wpfc-exclude-item-url").html(self.create_url_description(e.prefix, e.content, e.type));
 
 			item.find(".wpfc-exclude-item-form-title").html(self.create_title(e.prefix, e.content));
 
@@ -180,22 +183,28 @@
 
 				clone_modal.find("select").change(function(e){
 					if(jQuery(this).val() == "homepage"){
-						clone_modal.find("input").hide();
-						clone_modal.find("input").attr("name", "wpfc-exclude-rule-content").val("home");
+						clone_modal.find("input[name='wpfc-exclude-rule-content']").hide();
+						clone_modal.find("input[name='wpfc-exclude-rule-content']").val("home");
 					}else{
-						clone_modal.find("input").show();
-						clone_modal.find("input").attr("name", "wpfc-exclude-rule-content").val("");
+						clone_modal.find("input[name='wpfc-exclude-rule-content']").show();
+						clone_modal.find("input[name='wpfc-exclude-rule-content']").val("");
 					}
 				});
 
 				if(e.prefix == "homepage"){
-					clone_modal.find("input").attr("name", "wpfc-exclude-rule-content").hide();
+					clone_modal.find("input[name='wpfc-exclude-rule-content']").hide();
 				}
 
 				clone_modal.attr("id", clone_modal_id);
-				clone_modal.find("select").attr("name", "wpfc-exclude-rule-prefix").val(jQuery(this).attr("prefix"));
-				clone_modal.find("input").attr("name", "wpfc-exclude-rule-content").val(jQuery(this).attr("content"));
+				clone_modal.find("select[name='wpfc-exclude-rule-prefix']").val(jQuery(this).attr("prefix"));
+				clone_modal.find("input[name='wpfc-exclude-rule-content']").val(jQuery(this).attr("content"));
+				clone_modal.find("input[name='wpfc-exclude-rule-type']").val(jQuery(this).attr("type"));
 
+				if(e.type == "useragent"){
+					clone_modal.find(".wpfc-condition-text").text("If User-Agent");
+				}else if(e.type == "css"){
+					clone_modal.find(".wpfc-condition-text").text("If CSS Url");
+				}
 
 				jQuery("#wpfc-modal-exclude").after(clone_modal);
 
@@ -210,8 +219,9 @@
 						},
 						"finish" :
 						function(){
-							var prefix = clone_modal.find("select").attr("name", "wpfc-exclude-rule-prefix").val();
-							var content = clone_modal.find("input").attr("name", "wpfc-exclude-rule-content").val();
+							var prefix = clone_modal.find("select[name='wpfc-exclude-rule-prefix']").val();
+							var content = clone_modal.find("input[name='wpfc-exclude-rule-content']").val();
+							var type = clone_modal.find("input[name='wpfc-exclude-rule-type']").val();
 							
 							jQuery("div.wpfc-exclude-rule-line[wpfc-exclude-rule-number='" + number + "']").find("select[name='wpfc-exclude-rule-prefix-" + number + "']").val(prefix);
 							jQuery("div.wpfc-exclude-rule-line[wpfc-exclude-rule-number='" + number + "']").find("input[name='wpfc-exclude-rule-content-" + number + "']").val(content);
@@ -225,7 +235,7 @@
 									// jQuery("div.wpfc-exclude-item[wpfc-exclude-item-number='" + number + "']").find(".wpfc-exclude-item-prefix").text(self.get_text(prefix));
 									// jQuery("div.wpfc-exclude-item[wpfc-exclude-item-number='" + number + "']").find(".wpfc-exclude-item-content").text('"' + content + '"');
 
-									jQuery("div.wpfc-exclude-item[wpfc-exclude-item-number='" + number + "']").find(".wpfc-exclude-item-url").html(self.create_url_description(prefix, content));
+									jQuery("div.wpfc-exclude-item[wpfc-exclude-item-number='" + number + "']").find(".wpfc-exclude-item-url").html(self.create_url_description(prefix, content, type));
 									
 									jQuery("div.wpfc-exclude-item[wpfc-exclude-item-number='" + number + "']").find(".wpfc-exclude-item-form-title").html(self.create_title(prefix, content));
 								});
@@ -239,7 +249,9 @@
 			
 			item.show();
 
-			jQuery(".wpfc-exclude-list").append(item);
+			jQuery(".wpfc-exclude-" + e.type + "-list").append(item);
+
+			this.reorder();
 		},
 		create_title: function(prefix, content){
 			var title = "";
@@ -256,7 +268,7 @@
 
 			return title;
 		},
-		create_url_description: function(prefix, content){
+		create_url_description: function(prefix, content, type){
 				var request_uri = content;
 				var b_start = "<b style='font-size:11px;color:#FFA100;'>";
 				var b_end = "</b>"
@@ -271,7 +283,12 @@
 					request_uri = "";
 				}
 
-				return "<?php echo home_url();?>" + "/" + request_uri;
+				if(type == "page" || type == "css"){
+					return "<?php echo home_url();?>" + "/" + request_uri;
+				}else if(type == "useragent"){
+					return "User-Agent: " + request_uri;
+				}
+
 		},
 		add_line: function(number, e){
 			var line = jQuery(".wpfc-exclude-rule-line").first().closest(".wpfc-exclude-rule-line").clone();
@@ -280,8 +297,9 @@
 
 			line.find(".wpfc-exclude-rule-line-add").remove();
 			line.find(".wpfc-exclude-rule-line-delete").show();
-			line.find("select").attr("name", "wpfc-exclude-rule-prefix-" + number).val(e.prefix);
-			line.find("input").attr("name", "wpfc-exclude-rule-content-" + number).val(e.content);
+			line.find("select[name^='wpfc-exclude-rule-prefix']").attr("name", "wpfc-exclude-rule-prefix-" + number).val(e.prefix);
+			line.find("input[name^='wpfc-exclude-rule-content']").attr("name", "wpfc-exclude-rule-content-" + number).val(e.content);
+			line.find("input[name^='wpfc-exclude-rule-type']").attr("name", "wpfc-exclude-rule-type-" + number).val(e.type);
 
 			jQuery(".wpfc-exclude-rule-container").append(line);
 		},
@@ -293,16 +311,35 @@
 				//var number = jQuery("div.wpfc-exclude-rule-line[wpfc-exclude-rule-number]").length;
 				var number = new Date().getTime();
 				var clone_modal_id = "wpfc-modal-exclude-" + new Date().getTime();
+				var clone_modal_type = jQuery(e.currentTarget).attr("data-type");
 
 				clone_modal.attr("id", clone_modal_id);
+				clone_modal.find("input[name='wpfc-exclude-rule-type']").val(clone_modal_type);
+				
+				if(clone_modal_type != "page"){
+					clone_modal.find("select[name='wpfc-exclude-rule-prefix'] option").each(function(){
+						if(this.value != "contain"){
+							jQuery(this).remove();
+						}
+					});
+
+					if(clone_modal_type == "useragent"){
+						clone_modal.find(".wpfc-condition-text").text("If User-Agent");
+					}else if(clone_modal_type == "css"){
+						clone_modal.find(".wpfc-condition-text").text("If CSS Url");
+					}
+				}
+
+
+
 
 				clone_modal.find("select").change(function(){
 					if(jQuery(this).val() == "homepage"){
-						clone_modal.find("input").hide();
-						clone_modal.find("input").attr("name", "wpfc-exclude-rule-content").val("home");
+						clone_modal.find("input[name='wpfc-exclude-rule-content']").hide();
+						clone_modal.find("input[name='wpfc-exclude-rule-content']").val("home");
 					}else{
-						clone_modal.find("input").show();
-						clone_modal.find("input").attr("name", "wpfc-exclude-rule-content").val("");
+						clone_modal.find("input[name='wpfc-exclude-rule-content']").show();
+						clone_modal.find("input[name='wpfc-exclude-rule-content']").val("");
 					}
 				});
 				
@@ -310,16 +347,21 @@
 
 				Wpfc_Dialog.dialog(clone_modal_id, {"finish" : 
 					function(){
-						var prefix = clone_modal.find("select").attr("name", "wpfc-exclude-rule-prefix").val();
-						var content = clone_modal.find("input").attr("name", "wpfc-exclude-rule-content").val();
+						var prefix = clone_modal.find("select[name='wpfc-exclude-rule-prefix']").val();
+						var content = clone_modal.find("input[name='wpfc-exclude-rule-content']").val();
+						var type = clone_modal.find("input[name='wpfc-exclude-rule-type']").val();
+
+						content = self.remove_host_name(content);
+
+						content = content.replace(/^\/|\/$/g, '');
 
 						if(self.is_empty_values(prefix, content)){
-							self.add_line(number + 1, {"prefix" : prefix, "content" : content});
+							self.add_line(number + 1, {"prefix" : prefix, "content" : content, "type" : type});
 
 							Wpfc_Dialog.remove();
 							
 							self.save(function(){
-								self.add_item(number + 1, {"prefix" : prefix, "content" : content});
+								self.add_item(number + 1, {"prefix" : prefix, "content" : content, "type" : type});
 							});
 						}
 					},
@@ -331,14 +373,17 @@
 			});
 		},
 		save: function(callback){
-			var rule_number, prefix, content, rule, rules = [];
+			var self = this, rule_number, prefix, content, rule, rules = [];
 
 			jQuery("form div.wpfc-exclude-rule-line").each(function(i, e){
 				rule_number = jQuery(e).attr("wpfc-exclude-rule-number");
-				prefix = jQuery(e).find("select").val();
-				content = jQuery(e).find("input").val();
+				prefix = jQuery(e).find("select[name^='wpfc-exclude-rule-prefix']").val();
+				type = jQuery(e).find("input[name^='wpfc-exclude-rule-type']").val();
+				content = jQuery(e).find("input[name^='wpfc-exclude-rule-content']").val();
 
-				rules.push({"prefix" : prefix, "content" : content});
+				content = self.remove_host_name(content); 
+
+				rules.push({"prefix" : prefix, "content" : content, "type" : type});
 			});
 
 			jQuery("#revert-loader-toolbar").show();
@@ -347,11 +392,12 @@
 				type: 'POST',
 				dataType: "json",
 				url: ajaxurl,
-				data : {"action": "wpfc_save_exclude_pages", "rules" : rules},
+				data : {"action": "wpfc_save_exclude_pages", "rules" : rules, security: '<?php echo wp_create_nonce( "wpfc-save-exclude-ajax-nonce" ); ?>'},
 			    success: function(res){
 			    	if(res.success){
 			    		jQuery("#revert-loader-toolbar").hide();
 			    		callback();
+			    		self.reorder();
 			    	}else{
 			    		alert("The rule cannot be added...");
 			    	}
@@ -364,15 +410,19 @@
 		insert_existing_rules: function(){
 			var self = this;
 
-			self.add_item(new Date().getTime(), {"prefix" : "exact", "content" : "wp-login.php", "editable" : false});
+			self.add_item(new Date().getTime(), {"type" : "page", "prefix" : "exact", "content" : "wp-login.php", "editable" : false});
 			//self.add_item(new Date().getTime(), {"prefix" : "startwith", "content" : "wp-content", "editable" : false});
-			self.add_item(new Date().getTime(), {"prefix" : "startwith", "content" : "wp-admin", "editable" : false});
+			self.add_item(new Date().getTime(), {"type" : "page", "prefix" : "startwith", "content" : "wp-admin", "editable" : false});
+			self.add_item(new Date().getTime(), {"type" : "useragent", "prefix" : "contain", "content" : "facebookexternalhit", "editable" : false});
+			self.add_item(new Date().getTime(), {"type" : "useragent", "prefix" : "contain", "content" : "WhatsApp", "editable" : false});
+
 
 			if(typeof this.rules != "undefined" && this.rules && this.rules.length > 0){
 				jQuery.each(self.rules, function(i, e){
 					if(i > 0){
 					}
-
+					e.type = e.type ? e.type : "page";
+					
 					self.add_line(i + 1, e);
 					self.add_item(i + 1, e);
 				});
@@ -400,6 +450,28 @@
 			}
 			
 			return false;
+		},
+		remove_host_name: function(content){
+			//to replace the urls which start with http:// or www. or with Host_Name
+			content = content.replace(new RegExp('.*' + location.hostname.replace(/www\./, "") + "\/", "gi"), "");
+			content = content.replace(/\/$/, "");
+
+			return content;
+		},
+		reorder: function(type){
+			jQuery("div.tab6 div[class^='wpfc-exclude'][class$='-list']").each(function(i,e){
+				var type = jQuery(e).attr("class").match(/wpfc-exclude-([^-]+)-list/);
+				
+				if(typeof type[1] != "undefined"){
+					jQuery("div.wpfc-exclude-" + type[1] + "-list div.wpfc-exclude-item").each(function(i, e){
+						jQuery(e).removeClass("wpfc-exclude-item-right");
+
+						if(i%2 != 0){
+							jQuery(e).addClass("wpfc-exclude-item-right");
+						}
+					});
+				}
+			});
 		}
 	};
 </script>

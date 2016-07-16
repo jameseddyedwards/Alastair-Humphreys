@@ -13,6 +13,23 @@
 			$this->tags_reorder();
 		}
 
+		public function check_exclude($css_url = false){
+			if($css_url){
+				foreach((array)$this->wpfc->exclude_rules as $key => $value){
+
+					if(isset($value->prefix) && $value->prefix && $value->type == "css"){
+						if($value->prefix == "contain"){
+							$preg_match_rule = preg_quote($value->content, "/");
+						}
+
+						if(preg_match("/".$preg_match_rule."/i", $css_url)){
+							return true;
+						}
+					}
+				}
+			}
+		}
+
 		public function combineCss(){
 			$all = array();
 			$group = array();
@@ -29,6 +46,12 @@
 					}
 
 					if(!$this->checkInternal($value["text"])){
+						array_push($all, $group);
+						$group = array();
+						continue;
+					}
+
+					if($this->check_exclude($value["text"])){
 						array_push($all, $group);
 						$group = array();
 						continue;
@@ -74,10 +97,12 @@
 						$cachFilePath = WPFC_WP_CONTENT_DIR."/cache/wpfc-minified/".$combined_name;
 						$cssLink = str_replace(array("http:", "https:"), "", content_url())."/cache/wpfc-minified/".$combined_name;
 
+						$GLOBALS["wp_fastest_cache"]->images_in_css["name"] = $GLOBALS["wp_fastest_cache"]->images_in_css["name"].$cachFilePath;
+
 						if(is_dir($cachFilePath)){
 							if($cssFiles = @scandir($cachFilePath, 1)){
 
-								$cssFiles[0] = preg_replace("/\.gz$/", "", $cssFiles[0]);
+								$this->set_images_in_css(false);
 
 								$combined_link = '<link rel="stylesheet" type="text/css" href="'.$cssLink."/".$cssFiles[0].'" media="'.$group_value[0]["media"].'"/>';
 							}
@@ -86,15 +111,19 @@
 							$combined_css = $this->fix_charset($combined_css);
 
 							if($combined_css){
+								
+								if($this->wpfc->cdn){
+									$combined_css = preg_replace_callback("/(url)\(([^\)]+)\)/i", array($this->wpfc, 'cdn_replace_urls'), $combined_css);
+								}
+
+								$this->set_images_in_css($combined_css);
+
 								$this->wpfc->createFolder($cachFilePath, $combined_css, "css", time(), true);
-							}
-
-							if(is_dir($cachFilePath)){
-								if($cssFiles = @scandir($cachFilePath, 1)){
-
-									$cssFiles[0] = preg_replace("/\.gz$/", "", $cssFiles[0]);
-									
-									$combined_link = '<link rel="stylesheet" type="text/css" href="'.$cssLink."/".$cssFiles[0].'" media="'.$group_value[0]["media"].'"/>';
+								
+								if(is_dir($cachFilePath)){
+									if($cssFiles = @scandir($cachFilePath, 1)){
+										$combined_link = '<link rel="stylesheet" type="text/css" href="'.$cssLink."/".$cssFiles[0].'" media="'.$group_value[0]["media"].'"/>';
+									}
 								}
 							}
 						}
@@ -150,40 +179,30 @@
 
 					if(preg_match("/<link/i", $text)){
 						if($href = $this->checkInternal($text)){
+							if($this->check_exclude($href)){
+								continue;
+							}
 
 							$minifiedCss = $this->minify($href);
 
 							if($minifiedCss){
+								$this->set_images_in_css($minifiedCss["cssContent"]);
+
 								$prefixLink = str_replace(array("http:", "https:"), "", $minifiedCss["url"]);
 								$text = preg_replace("/href\=[\"\'][^\"\']+[\"\']/", "href='".$prefixLink."'", $text);
 
 								$this->html = substr_replace($this->html, $text, $value["start"], ($value["end"] - $value["start"] + 1));
+
+								$GLOBALS["wp_fastest_cache"]->images_in_css["name"] = $GLOBALS["wp_fastest_cache"]->images_in_css["name"].md5($minifiedCss["url"]);
 							}
+
+
 						}
 					}
 				}
 			}
 
 			return $this->html;
-		}
-
-		public function checkInternal($link){
-			$httpHost = str_replace("www.", "", $_SERVER["HTTP_HOST"]); 
-			if(preg_match("/href=[\"\'](.*?)[\"\']/", $link, $href)){
-
-				if(preg_match("/^\/[^\/]/", $href[1])){
-					return $href[1];
-				}
-
-				if(@strpos($href[1], $httpHost)){
-					return $href[1];
-				}
-
-				if(@strpos($href[1], "fonts.googleapis.com")){
-					return $href[1];
-				}
-			}
-			return false;
 		}
 
 		public function tags_reorder(){
@@ -299,7 +318,7 @@
 					$original_content_length = strlen($cssContent);
 
 					$cssContent = $this->fixPathsInCssContent($cssContent, $url);
-
+					
 					if(isset($this->wpfc->options->wpFastestCacheMinifyCss) && $this->wpfc->options->wpFastestCacheMinifyCss){
 						$cssContent = $this->_process($cssContent);
 					}
@@ -311,6 +330,7 @@
 						}
 					}
 
+
 					$cssContent = str_replace("\xEF\xBB\xBF", '', $cssContent);
 
 					// If the content is empty, the file is not created. This breaks "combine css" feature 
@@ -320,6 +340,11 @@
 
 					if(!is_dir($cachFilePath)){
 						$prefix = time();
+
+						if($this->wpfc->cdn){
+							$cssContent = preg_replace_callback("/(url)\(([^\)]+)\)/i", array($this->wpfc, 'cdn_replace_urls'), $cssContent);
+						}
+
 						$this->wpfc->createFolder($cachFilePath, $cssContent, "css", $prefix);
 					}
 
@@ -335,7 +360,7 @@
 			$this->url_for_fix = $url;
 
 			$css = preg_replace("/@import\s+[\"\']([^\;\"\'\)]+)[\"\'];/", "@import url($1);", $css);
-			$css = preg_replace_callback("/url\(([^\)]*)\)/", array($this, 'newImgPath'), $css);
+			$css = preg_replace_callback("/url\(([^\)\n]*)\)/", array($this, 'newImgPath'), $css);
 			$css = preg_replace_callback('/@import\s+url\(([^\)]+)\);/i', array($this, 'fix_import_rules'), $css);
 			$css = $this->fix_charset($css);
 
@@ -408,6 +433,17 @@
 			return $matches[0];
 		}
 
+		public function set_images_in_css($css_content = false){
+			if($css_content){
+				preg_match_all("/url\(([^\)]*)\)/i", $css_content, $out);
+
+				if(isset($out) && isset($out[1]) && isset($out[1][0])){
+					$GLOBALS["wp_fastest_cache"]->images_in_css["images"] = array_merge($GLOBALS["wp_fastest_cache"]->images_in_css["images"], array_unique($out[1]));
+					$GLOBALS["wp_fastest_cache"]->images_in_css["images"] = array_unique($GLOBALS["wp_fastest_cache"]->images_in_css["images"]);
+				}
+			}
+		}
+
 		protected $_inHack = false;
 	 
 	    protected function _process($css){
@@ -475,6 +511,31 @@
 	            : '';
 	    }
 
+	    public function checkInternal($link){
+			$httpHost = str_replace("www.", "", $_SERVER["HTTP_HOST"]);
+			
+			if(preg_match("/href=[\"\'](.*?)[\"\']/", $link, $href)){
+
+				if(preg_match("/^\/[^\/]/", $href[1])){
+					return $href[1];
+				}
+
+				if(@strpos($href[1], $httpHost)){
+					return $href[1];
+				}
+
+				// if(preg_match("/fonts\.googleapis\.com/i", $href[1])){
+				// 	//http://fonts.googleapis.com/css?family=Raleway%3A400%2C600
+				// 	if(preg_match("/Raleway/i", $href[1])){
+				// 		return false;
+				// 	}
+
+				// 	return $href[1];
+				// }
+			}
+			return false;
+		}
+
 		public function is_internal_css($url){
 			$http_host = trim($_SERVER["HTTP_HOST"], "www.");
 
@@ -492,15 +553,26 @@
 					return true;
 				}
 
-				if(preg_match("/fonts\.googleapis\.com/i", $url)){
-					return true;
-				}
+				// if(preg_match("/fonts\.googleapis\.com/i", $url)){
+				// 	//http://fonts.googleapis.com/css?family=Raleway%3A400%2C600
+				// 	if(preg_match("/Raleway/i", $url)){
+				// 		return false;
+				// 	}
+
+				// 	return true;
+				// }
 			}
 
 			return false;
 		}
 
 	    public function file_get_contents_curl($url, $version = ""){
+	    	if($data = $this->wpfc->read_file($url)){
+	    		return $data;
+	    	}
+
+			$url = str_replace('&#038;', '&', $url);
+	    	
 	    	if(preg_match("/\.php\?/i", $url)){
 	    		$version = "";
 			}
@@ -508,7 +580,6 @@
 			if(preg_match("/(fonts\.googleapis\.com|iire-social-icons)/i", $url)){
 				$version = "";
 				$url = str_replace(array("'",'"'), "", $url);
-				$url = str_replace('&#038;', '&', $url);
 			}
 
 	    	$url = $url.$version;
@@ -524,7 +595,7 @@
 			}
 
 			//$response = wp_remote_get($url, array('timeout' => 10, 'headers' => array("cache-control" => array("no-store, no-cache, must-revalidate", "post-check=0, pre-check=0"))));
-			$response = wp_remote_get($url, array('timeout' => 10));
+			$response = wp_remote_get($url, array('timeout' => 10, 'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36'));
 			
 			if ( !$response || is_wp_error( $response ) ) {
 				return false;
@@ -535,7 +606,7 @@
 					if(preg_match("/\<\!DOCTYPE/i", $data) || preg_match("/<\/\s*html\s*>/i", $data)){
 						return false;
 					}else if(!$data){
-						return "<!-- empty -->";
+						return "/* empty */";
 					}else{
 						return $data;	
 					}

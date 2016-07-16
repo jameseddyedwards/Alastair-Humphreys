@@ -1,11 +1,10 @@
 === WP Fastest Cache ===
 Contributors: emrevona
 Donate link: http://profiles.wordpress.org/emrevona/
-Tags: cache, caching, performance, wp-cache, super cache, total cache, quick cache, wordpress cache, wp cache, wordpress caching, nginx cache, browser cache, page cache, advanced cache, disk cache, fastest cache, cache plugin, wordpress cache plugin, Mod_Rewrite Cache, wp super cache, minify css cache, minify js cache, minify css, minify js, combine css, combine css cache, combine js, combine js cache, minify html cache, nginx, optimize, minify, cdn, woocommerce, plugin, post, posts, google, ajax, comments, seo, gzip, gzip compression, gzip cache, google page speed, ylow, speed, pagespeed
-
+Tags: cache, performance, wp-cache, total cache, super cache
 Requires at least: 3.3
-Tested up to: 4.4
-Stable tag: 4.4
+Tested up to: 4.5
+Stable tag: 4.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +24,9 @@ Cache system generates a static html file and saves. Other users reach to static
 <br><br>
 Setup of this plugin is so easy. You don't need to modify the .htacces file. It will be modified automatically.
 
+<h4>Multisite Support</h4>
+Wpfc does not support Wordpress Multisite yet.
+
 <h4>Features</h4>
 
 1. Mod_Rewrite which is the fastest method is used in this plugin
@@ -39,6 +41,7 @@ Setup of this plugin is so easy. You don't need to modify the .htacces file. It 
 10. SSL support
 11. CDN support
 12. Preload Cache - Create the cache of all the site automatically
+13. Exclude pages and user-agents
 
 <h4>Performance Optimization</h4>
 
@@ -89,6 +92,42 @@ Setup of this plugin is so easy. You don't need to modify the .htacces file. It 
 10. CDN
 
 == Changelog ==
+
+= 0.8.6.0 =
+* to fix the problem about replacing url after minify css
+* to add "start with" option to the cache timeout
+* to add uninstall feature
+* to add "user-agent" option to the exclude page
+* to convert cache time to local time
+* to exclude WhatsApp user-agent
+
+= 0.8.5.9 =
+* to remove X-Wap-Profile from htaccess
+* to show warning lightbox if the cache cannot be deleted
+* <strong>[FEATURE]</strong> Set preload number
+* refactoring of is_wptouch_smartphone()
+* <strong>[FEATURE]</strong> to clear only the homepage cache
+* wp nonces added for security
+
+= 0.8.5.8 =
+* to remove hostname from exclude rule
+* to fix file cache problem
+* to change the mobile user-agents
+* to fix Wordfence Security report
+
+= 0.8.5.7 =
+* <strong>[FEATURE]</strong> Preload
+* to exclude the renamed page of woocommerce
+* to fix path which starts with ./ in css files
+* <strong>[FEATURE]</strong> Compatible with Visual Composer Post Grid
+* application/x-javascript has been added for leverage browser caching
+* to prevent removing newlines from .htaccess
+* <strong>[FEATURE]</strong> Compatible with WP-CLI
+* to add wp-touch mobile user-agent list
+* to exclude facebookexternalhit user-agent
+* <strong>[FEATURE]</strong> Compatible with Any Mobile Theme Switcher
+* <strong>[FEATURE]</strong> CDN for css files
+* to fix the huge size of tmpWpfc problem
 
 = 0.8.5.6 =
 * to combine css files by media attribute
