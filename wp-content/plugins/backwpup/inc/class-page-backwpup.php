@@ -112,7 +112,7 @@ class BackWPup_Page_BackWPup {
 
 			if ( current_user_can( 'backwpup_jobs_start' ) ) {?>
 				<div id="backwpup-one-click-backup" class="metabox-holder postbox backwpup-floated-postbox">
-					<h3 class="hndle"><span><?php  esc_html_e( 'One click backup', 'backwpup' ); ?></span></h3>
+					<h3 class="hndle"><span><?php esc_html_e( 'One click backup', 'backwpup' ); ?></span></h3>
 					<div class="inside">
 						<a href="<?php echo wp_nonce_url( network_admin_url( 'admin.php?page=backwpup&action=dbdumpdl' ), 'backwpupdbdumpdl' ); ?>" class="button button-primary button-primary-bwp" title="<?php esc_attr_e( 'Generate a database backup of WordPress tables and download it right away!', 'backwpup' ); ?>"><?php esc_html_e( 'Download database backup', 'backwpup' ); ?></a><br />
 					</div>
@@ -120,11 +120,11 @@ class BackWPup_Page_BackWPup {
 			<?php } ?>
 
 			<div id="backwpup-rss-feed" class="metabox-holder postbox backwpup-cleared-postbox backwpup-max-width">
-				<h3 class="hndle"><span><?php  esc_attr_e( 'BackWPup News', 'backwpup' ); ?></span></h3>
+				<h3 class="hndle"><span><?php esc_attr_e( 'BackWPup News', 'backwpup' ); ?></span></h3>
 				<div class="inside">
 					<?php
 
-						$rss = fetch_feed( _x( 'https://marketpress.com/tag/backwpup/feed/', 'BackWPup News RSS Feed URL', 'backwpup' ) );
+						$rss = fetch_feed( _x( 'https://backwpup.com/feed/', 'BackWPup News RSS Feed URL', 'backwpup' ) );
 
 						if ( is_wp_error( $rss ) ) {
 							echo '<p>' . sprintf( __('<strong>RSS Error</strong>: %s', 'backwpup' ), $rss->get_error_message() ) . '</p>';
@@ -213,8 +213,7 @@ class BackWPup_Page_BackWPup {
 				}
 			} ?>
 
-
-	        <div class="metabox-holder postbox backwpup-floated-postbox">
+	        <div class="metabox-holder postbox backwpup-cleared-postbox backwpup-floated-postbox">
 		        <h3 class="hndle"><span><a href="https://www.ostraining.com/">OSTraining</a> <?php  esc_html_e( 'Video: Introduction', 'backwpup' ); ?></span></h3>
 		        <iframe class="inside" width="340" height="190" src="https://www.youtube.com/embed/pECMkLE27QQ?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 	        </div>
@@ -224,7 +223,7 @@ class BackWPup_Page_BackWPup {
 		        <iframe class="inside" width="340" height="190" src="https://www.youtube.com/embed/F55xEoDnS0U?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 	        </div>
 
-	        <div class="metabox-holder postbox backwpup-floated-postbox">
+	        <div class="metabox-holder postbox backwpup-cleared-postbox backwpup-floated-postbox">
 		        <h3 class="hndle"><span><a href="https://www.ostraining.com/">OSTraining</a> <?php  esc_html_e( 'Video: Daily Backups', 'backwpup' ); ?></span></h3>
 		        <iframe class="inside" width="340" height="190" src="https://www.youtube.com/embed/staZo0DS5m4?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 	        </div>
@@ -234,7 +233,7 @@ class BackWPup_Page_BackWPup {
 		        <iframe class="inside" width="340" height="190" src="https://www.youtube.com/embed/3N9FbmBuaac?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 	        </div>
 
-	        <div class="metabox-holder postbox backwpup-floated-postbox">
+	        <div class="metabox-holder postbox backwpup-cleared-postbox backwpup-floated-postbox">
 		        <h3 class="hndle"><span><a href="https://www.ostraining.com/">OSTraining</a> <?php  esc_html_e( 'Video: Restoring Backups', 'backwpup' ); ?></span></h3>
 		        <iframe class="inside" width="340" height="190" src="https://www.youtube.com/embed/VIwDp87vYZY?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 	        </div>
@@ -252,21 +251,86 @@ class BackWPup_Page_BackWPup {
 			<div id="backwpup-thank-you" class="metabox-holder postbox backwpup-cleared-postbox backwpup-max-width">
 				<h3 class="hndle"><span><?php  _ex( 'Thank you for using BackWPup!', 'Pro teaser box', 'backwpup' ); ?></span></h3>
 				<div class="inside">
-					<p><img class="backwpup-banner-img" src="<?php echo BackWPup::get_plugin_data( 'URL' ) . '/assets/images/backwpupbanner-pro.png'; ?>" alt="BackWPup Banner" /></p>
+					<p><img class="backwpup-banner-img" src="<?php echo BackWPup::get_plugin_data( 'URL' ) . '/assets/images/backwpupbanner.png'; ?>" alt="BackWPup Banner" /></p>
 					<h3 class="backwpup-text-center"><?php _ex( 'Get access to:', 'Pro teaser box', 'backwpup' ); ?></h3>
 					<ul class="backwpup-text-center">
 						<li><?php _ex( 'First-class <strong>dedicated support</strong> at MarketPress Helpdesk.', 'Pro teaser box', 'backwpup' ); ?></li>
 						<li><?php echo esc_html_x( 'Differential backups to Google Drive and other cloud storage service.', 'Pro teaser box', 'backwpup' ); ?></li>
 						<li><?php echo esc_html_x( 'Easy-peasy wizards to create and schedule backup jobs.', 'Pro teaser box', 'backwpup' ); ?></li>
-						<li><?php printf( '<a href="http://marketpress.com/product/backwpup-pro/">%s</a>', _x( 'And more…', 'Pro teaser box, link text', 'backwpup' ) ); ?></li>
+						<li><?php printf( '<a href="' . esc_html__( 'http://backwpup.com', 'backwpup' ) .'">%s</a>', _x( 'And more…', 'Pro teaser box, link text', 'backwpup' ) ); ?></li>
 					</ul>
-					<p class="backwpup-text-center"><a href="http://marketpress.com/product/backwpup-pro/" class="button button-primary button-primary-bwp" title="<?php _ex( 'Get BackWPup Pro now', 'Pro teaser box, link title', 'backwpup' ); ?>"><?php _ex( 'Get BackWPup Pro now', 'Pro teaser box, link text', 'backwpup' ); ?></a></p>
+					<p class="backwpup-text-center"><a href="<?php esc_html_e( 'http://backwpup.com', 'backwpup' ); ?>" class="button button-primary button-primary-bwp" title="<?php _ex( 'Get BackWPup Pro now', 'Pro teaser box, link title', 'backwpup' ); ?>"><?php _ex( 'Get BackWPup Pro now', 'Pro teaser box, link text', 'backwpup' ); ?></a></p>
 				</div>
 			</div>
 			<?php } ?>
 
         </div>
 	<?php
+	}
+
+	/**
+	 * Displaying next jobs
+	 */
+	private static function mb_next_jobs() {
+
+		if ( ! current_user_can( 'backwpup_jobs' ) )
+			return;
+		?>
+		<table class="wp-list-table widefat" cellspacing="0">
+			<caption><?php _e( 'Next scheduled jobs', 'backwpup' ); ?></caption>
+			<thead>
+			<tr>
+				<th style="width: 30%"><?php  esc_html_e( 'Time', 'backwpup' ); ?></th>
+				<th style="width: 70%"><?php  esc_html_e( 'Job', 'backwpup' ); ?></th>
+			</tr>
+			</thead>
+			<?php
+			//get next jobs
+			$mainsactive = BackWPup_Option::get_job_ids( 'activetype', 'wpcron' );
+			sort( $mainsactive );
+			$alternate = TRUE;
+			// add working job if it not in active jobs
+			$job_object = BackWPup_Job::get_working_data();
+			if ( ! empty( $job_object ) && ! empty( $job_object->job[ 'jobid' ] ) && ! in_array($job_object->job[ 'jobid' ], $mainsactive, true ) )
+				$mainsactive[ ] = $job_object->job[ 'jobid' ];
+			foreach ( $mainsactive as $jobid ) {
+				$name = BackWPup_Option::get( $jobid, 'name' );
+				if ( ! empty( $job_object ) && $job_object->job[ 'jobid' ] == $jobid ) {
+					$runtime  = current_time( 'timestamp' ) -  $job_object->job[ 'lastrun' ];
+					if ( ! $alternate ) {
+						echo '<tr>';
+						$alternate = TRUE;
+					} else {
+						echo '<tr class="alternate">';
+						$alternate = FALSE;
+					}
+					echo '<td>' . sprintf( '<span style="color:#e66f00;">' . esc_html__( 'working since %d seconds', 'backwpup' ) . '</span>', $runtime ) . '</td>';
+					echo '<td><span style="font-weight:bold;">' . esc_html ( $job_object->job[ 'name' ] ) . '</span><br />';
+					echo "<a style=\"color:red;\" href=\"" . wp_nonce_url( network_admin_url( 'admin.php?page=backwpupjobs&action=abort'), 'abort-job' ) . "\">" . esc_html__( 'Abort', 'backwpup' ) . "</a>";
+					echo "</td></tr>";
+				}
+				else {
+					if ( ! $alternate ) {
+						echo '<tr>';
+						$alternate = TRUE;
+					} else {
+						echo '<tr class="alternate">';
+						$alternate = FALSE;
+					}
+					if ( $nextrun = wp_next_scheduled( 'backwpup_cron', array( 'id' => $jobid ) ) + ( get_option( 'gmt_offset' ) * 3600 ) )
+						echo '<td>' . sprintf( __( '%1$s at %2$s', 'backwpup' ), date_i18n( get_option( 'date_format' ), $nextrun, TRUE ), date_i18n( get_option( 'time_format' ), $nextrun, TRUE ) ) . '</td>';
+					else
+						echo '<td><em>' . esc_html__( 'Not scheduled!', 'backwpup' ) . '</em></td>';
+
+					echo '<td><a href="' . wp_nonce_url( network_admin_url( 'admin.php' ) . '?page=backwpupeditjob&jobid=' . $jobid, 'edit-job' ) . '" title="' . esc_attr( __( 'Edit Job', 'backwpup' ) ) . '">' . esc_html($name) . '</a></td></tr>';
+				}
+			}
+			if ( empty( $mainsactive ) and ! empty( $job_object ) ) {
+				echo '<tr><td colspan="2"><i>' . esc_html__( 'none', 'backwpup' ) . '</i></td></tr>';
+			}
+			?>
+		</table>
+		<?php
 	}
 
 	/**
@@ -330,71 +394,6 @@ class BackWPup_Page_BackWPup {
 			}
 			else {
 				echo '<tr><td colspan="3">' . __( 'none', 'backwpup' ) . '</td></tr>';
-			}
-			?>
-		</table>
-		<?php
-	}
-
-	/**
-	 * Displaying next jobs
-	 */
-	private static function mb_next_jobs() {
-
-		if ( ! current_user_can( 'backwpup_jobs' ) )
-			return;
-		?>
-		<table class="wp-list-table widefat" cellspacing="0">
-			<caption><?php _e( 'Next scheduled jobs', 'backwpup' ); ?></caption>
-			<thead>
-			<tr>
-				<th style="width: 30%"><?php  esc_html_e( 'Time', 'backwpup' ); ?></th>
-				<th style="width: 70%"><?php  esc_html_e( 'Job', 'backwpup' ); ?></th>
-			</tr>
-			</thead>
-			<?php
-			//get next jobs
-			$mainsactive = BackWPup_Option::get_job_ids( 'activetype', 'wpcron' );
-			sort( $mainsactive );
-			$alternate = TRUE;
-			// add working job if it not in active jobs
-			$job_object = BackWPup_Job::get_working_data();
-			if ( ! empty( $job_object ) && ! empty( $job_object->job[ 'jobid' ] ) && ! in_array($job_object->job[ 'jobid' ], $mainsactive, true ) )
-				$mainsactive[ ] = $job_object->job[ 'jobid' ];
-			foreach ( $mainsactive as $jobid ) {
-				$name = BackWPup_Option::get( $jobid, 'name' );
-				if ( ! empty( $job_object ) && $job_object->job[ 'jobid' ] == $jobid ) {
-					$runtime  = current_time( 'timestamp' ) -  $job_object->job[ 'lastrun' ];
-					if ( ! $alternate ) {
-						echo '<tr>';
-						$alternate = TRUE;
-					} else {
-						echo '<tr class="alternate">';
-						$alternate = FALSE;
-					}
-					echo '<td>' . sprintf( '<span style="color:#e66f00;">' . esc_html__( 'working since %d seconds', 'backwpup' ) . '</span>', $runtime ) . '</td>';
-					echo '<td><span style="font-weight:bold;">' . esc_html ( $job_object->job[ 'name' ] ) . '</span><br />';
-					echo "<a style=\"color:red;\" href=\"" . wp_nonce_url( network_admin_url( 'admin.php?page=backwpupjobs&action=abort'), 'abort-job' ) . "\">" . esc_html__( 'Abort', 'backwpup' ) . "</a>";
-					echo "</td></tr>";
-				}
-				else {
-					if ( ! $alternate ) {
-						echo '<tr>';
-						$alternate = TRUE;
-					} else {
-						echo '<tr class="alternate">';
-						$alternate = FALSE;
-					}
-					if ( $nextrun = wp_next_scheduled( 'backwpup_cron', array( 'id' => $jobid ) ) + ( get_option( 'gmt_offset' ) * 3600 ) )
-						echo '<td>' . sprintf( __( '%1$s at %2$s', 'backwpup' ), date_i18n( get_option( 'date_format' ), $nextrun, TRUE ), date_i18n( get_option( 'time_format' ), $nextrun, TRUE ) ) . '</td>';
-					else
-						echo '<td><em>' . esc_html__( 'Not scheduled!', 'backwpup' ) . '</em></td>';
-
-					echo '<td><a href="' . wp_nonce_url( network_admin_url( 'admin.php' ) . '?page=backwpupeditjob&jobid=' . $jobid, 'edit-job' ) . '" title="' . esc_attr( __( 'Edit Job', 'backwpup' ) ) . '">' . esc_html($name) . '</a></td></tr>';
-				}
-			}
-			if ( empty( $mainsactive ) and ! empty( $job_object ) ) {
-				echo '<tr><td colspan="2"><i>' . esc_html__( 'none', 'backwpup' ) . '</i></td></tr>';
 			}
 			?>
 		</table>
