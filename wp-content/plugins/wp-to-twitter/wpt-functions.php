@@ -284,48 +284,6 @@ function wpt_fetch_url( $url, $method = 'GET', $body = '', $headers = '', $retur
 	}
 }
 
-if ( ! function_exists( 'mb_strlen' ) ) {
-	/**
-	 * Fallback implementation of mb_strlen, hardcoded to UTF-8.
-	 *
-	 * @param string $str
-	 *
-	 * @return int
-	 */
-	function mb_strlen( $str ) {
-		$counts = count_chars( $str );
-		$total  = 0;
-
-		// Count ASCII bytes
-		for ( $i = 0; $i < 0x80; $i ++ ) {
-			$total += $counts[ $i ];
-		}
-
-		// Count multibyte sequence heads
-		for ( $i = 0xc0; $i < 0xff; $i ++ ) {
-			$total += $counts[ $i ];
-		}
-
-		return $total;
-	}
-}
-
-if ( ! function_exists( 'mb_substr' ) ) {
-	function mb_substr( $str, $start, $count = 'end' ) {
-		if ( $start != 0 ) {
-			$split = mb_substr_split_unicode( $str, intval( $start ) );
-			$str   = substr( $str, $split );
-		}
-
-		if ( $count !== 'end' ) {
-			$split = mb_substr_split_unicode( $str, intval( $count ) );
-			$str   = substr( $str, 0, $split );
-		}
-
-		return $str;
-	}
-}
-
 if ( ! function_exists( 'mb_substr_split_unicode' ) ) {
 	function mb_substr_split_unicode( $str, $splitPos ) {
 		if ( $splitPos == 0 ) {
