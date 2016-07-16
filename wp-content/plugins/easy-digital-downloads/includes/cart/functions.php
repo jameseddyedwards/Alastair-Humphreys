@@ -22,6 +22,23 @@ function edd_get_cart_contents() {
 	$cart = EDD()->session->get( 'edd_cart' );
 	$cart = ! empty( $cart ) ? array_values( $cart ) : array();
 
+	$cart_count       = count( $cart );
+
+	foreach ( $cart as $key => $item ) {
+		$download = new EDD_Download( $item['id'] );
+
+		// If the item is not a download or it's status has changed since it was added to the cart.
+		if ( empty( $download->ID ) || ! $download->can_purchase() ) {
+			unset( $cart[ $key ] );
+		}
+
+	}
+
+	// We've removed items, reset the cart session
+	if ( count( $cart ) < $cart_count ) {
+		EDD()->session->set( 'edd_cart', $cart );
+	}
+
 	return apply_filters( 'edd_cart_contents', $cart );
 }
 
@@ -54,12 +71,21 @@ function edd_get_cart_content_details() {
 
 		$item['quantity'] = edd_item_quantities_enabled() ? absint( $item['quantity'] ) : 1;
 
+		$price_id = isset( $item['options']['price_id'] ) ? $item['options']['price_id'] : NULL;
+
 		$item_price = edd_get_cart_item_price( $item['id'], $item['options'] );
 		$discount   = edd_get_cart_item_discount_amount( $item );
 		$discount   = apply_filters( 'edd_get_cart_content_details_item_discount_amount', $discount, $item );
 		$quantity   = edd_get_cart_item_quantity( $item['id'], $item['options'] );
-		$fees       = edd_get_cart_fees( 'fee', $item['id'] );
+		$fees       = edd_get_cart_fees( 'fee', $item['id'], $price_id );
 		$subtotal   = $item_price * $quantity;
+
+		foreach ( $fees as $fee ) {
+			if ( $fee['amount'] < 0 ) {
+				$subtotal += $fee['amount'];
+			}
+		}
+
 		$tax        = edd_get_cart_item_tax( $item['id'], $item['options'], $subtotal - $discount );
 
 		if( edd_prices_include_tax() ) {
@@ -130,12 +156,13 @@ function edd_get_cart_quantity() {
  * @return string Cart key of the new item
  */
 function edd_add_to_cart( $download_id, $options = array() ) {
-	$download = get_post( $download_id );
+	$download = new EDD_Download( $download_id );
 
-	if( 'download' != $download->post_type )
+	if( empty( $download->ID ) ) {
 		return; // Not a download product
+	}
 
-	if ( ! current_user_can( 'edit_post', $download->ID ) && $download->post_status != 'publish' ) {
+	if ( ! $download->can_purchase() ) {
 		return; // Do not allow draft/pending to be purchased if can't edit. Fixes #1056
 	}
 
@@ -477,11 +504,11 @@ function edd_get_cart_item_price( $download_id = 0, $options = array(), $remove_
 		// Get the standard Download price if not using variable prices
 		$price = edd_get_download_price( $download_id );
 	}
-	
+
 	if ( $remove_tax_from_inclusive && edd_prices_include_tax() ) {
 
 		$price -= edd_get_cart_item_tax( $download_id, $options, $price );
-	}	
+	}
 
 	return apply_filters( 'edd_cart_item_price', $price, $download_id, $options );
 }
@@ -521,6 +548,8 @@ function edd_get_cart_item_tax( $download_id = 0, $options = array(), $subtotal 
 		$tax = edd_calculate_tax( $subtotal, $country, $state );
 
 	}
+
+	$tax = max( $tax, 0 );
 
 	return apply_filters( 'edd_get_cart_item_tax', $tax, $download_id, $options, $subtotal );
 }
@@ -702,14 +731,16 @@ function edd_get_cart_items_subtotal( $items ) {
  * @return float Cart amount
  */
 function edd_get_cart_total( $discounts = false ) {
-	$subtotal  = (float) edd_get_cart_subtotal();
-	$discounts = (float) edd_get_cart_discounted_amount();
-	$cart_tax  = (float) edd_get_cart_tax();
-	$fees      = (float) edd_get_cart_fee_total();
-	$total     = $subtotal - $discounts + $cart_tax + $fees;
+	$subtotal     = (float) edd_get_cart_subtotal();
+	$discounts    = (float) edd_get_cart_discounted_amount();
+	$fees         = (float) edd_get_cart_fee_total();
+	$cart_tax     = (float) edd_get_cart_tax();
+	$total_wo_tax = $subtotal - $discounts + $fees;
+	$total        = $subtotal - $discounts + $cart_tax + $fees;
 
-	if( $total < 0 )
+	if( $total < 0 || ! $total_wo_tax > 0 ) {
 		$total = 0.00;
+	}
 
 	return (float) apply_filters( 'edd_get_cart_total', $total );
 }
@@ -763,8 +794,9 @@ function edd_cart_has_fees( $type = 'all' ) {
  * @uses EDD()->fees->get_fees()
  * @return array All the cart fees that have been applied
  */
-function edd_get_cart_fees( $type = 'all', $download_id = 0 ) {
-	return EDD()->fees->get_fees( $type, $download_id );
+function edd_get_cart_fees( $type = 'all', $download_id = 0, $price_id = NULL ) {
+
+	return EDD()->fees->get_fees( $type, $download_id, $price_id );
 }
 
 /**
@@ -777,7 +809,19 @@ function edd_get_cart_fees( $type = 'all', $download_id = 0 ) {
  * @return float Total Cart Fees
  */
 function edd_get_cart_fee_total() {
-	return EDD()->fees->total();
+	$fees = EDD()->fees->get_fees( 'all' );
+
+	$fee_total = 0.00;
+	foreach ( $fees as $fee ) {
+		if ( ! empty( $fee['download_id'] ) && $fee['amount'] <= 0 ) {
+			continue;
+		}
+
+		$fee_total += $fee['amount'];
+
+	}
+
+	return apply_filters( 'edd_get_fee_total', $fee_total, $fees );
 }
 
 /**
@@ -796,7 +840,7 @@ function edd_get_cart_fee_tax() {
 
 		foreach ( $fees as $fee_id => $fee ) {
 
-			if( ! empty( $fee['no_tax'] ) ) {
+			if( ! empty( $fee['no_tax'] ) || $fee['amount'] < 0 ) {
 				continue;
 			}
 
@@ -851,8 +895,8 @@ function edd_get_purchase_summary( $purchase_data, $email = true ) {
  */
 function edd_get_cart_tax() {
 
-	$cart_tax = 0;
-	$items    = edd_get_cart_content_details();
+	$cart_tax     = 0;
+	$items        = edd_get_cart_content_details();
 
 	if( $items ) {
 
@@ -883,6 +927,8 @@ function edd_cart_tax( $echo = false ) {
 		$cart_tax = edd_get_cart_tax();
 		$cart_tax = edd_currency_filter( edd_format_amount( $cart_tax ) );
 	}
+
+	$tax = max( $cart_tax, 0 );
 
 	$tax = apply_filters( 'edd_cart_tax', $cart_tax );
 

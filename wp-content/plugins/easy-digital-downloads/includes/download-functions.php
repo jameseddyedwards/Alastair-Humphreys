@@ -132,7 +132,7 @@ function edd_is_free_download( $download_id = 0, $price_id = false ) {
  *
  * @since 1.0
  * @param int $download_id ID number of the download to retrieve a price for
- * @return mixed string|int Price of the download
+ * @return mixed|string|int Price of the download
  */
 function edd_get_download_price( $download_id = 0 ) {
 
@@ -312,7 +312,7 @@ function edd_get_price_option_name( $download_id = 0, $price_id = 0, $payment_id
  * @since 1.8.2
  * @param int $download_id ID of the download
  * @param int $price_id ID of the price option
- * @param int @payment_id ID of the payment
+ * @param int $payment_id ID of the payment
  * @return float $amount Amount of the price option
  */
 function edd_get_price_option_amount( $download_id = 0, $price_id = 0 ) {
@@ -787,8 +787,10 @@ function edd_get_download_files( $download_id = 0, $variable_price_id = null ) {
  * @return string The file name
  */
 function edd_get_file_name( $file = array() ) {
-	if( empty( $file ) || ! is_array( $file ) )
+	if( empty( $file ) || ! is_array( $file ) ) {
 		return false;
+	}
+
 	$name = ! empty( $file['name'] ) ? esc_html( $file['name'] ) : basename( $file['file'] );
 
 	return $name;
@@ -953,18 +955,18 @@ function edd_get_file_price_condition( $download_id = 0, $file_key ) {
 
 /**
  * Get Download File Url
- * Constructs the file download url for a specific file.
+ * Constructs a secure file download url for a specific file.
  *
  * @since 1.0
  *
- * @param string $key
- * @param string $email Customer email address
- * @param int    $filekey
- * @param int    $download_id
- * @param bool   $price_id
+ * @param string    $key Payment key. Use edd_get_payment_key() to get key.
+ * @param string    $email Customer email address. Use edd_get_payment_user_email() to get user email.
+ * @param int       $filekey Index of array of files returned by edd_get_download_files() that this download link is for. 
+ * @param int       $download_id Optional. ID of download this download link is for. Default is 0.
+ * @param bool|int  $price_id Optional. Price ID when using variable prices. Default is false.
  *
- * @return string Constructed download URL
- */
+ * @return string A secure download URL
+ */ 
 function edd_get_download_file_url( $key, $email, $filekey, $download_id = 0, $price_id = false ) {
 
 	$hours = absint( edd_get_option( 'download_link_expiration', 24 ) );

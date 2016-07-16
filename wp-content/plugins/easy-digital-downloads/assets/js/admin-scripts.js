@@ -1,5 +1,24 @@
 jQuery(document).ready(function ($) {
 
+	// Tooltips
+	$('.edd-help-tip').tooltip({
+		content: function() {
+			return $(this).prop('title');
+		},
+		tooltipClass: 'edd-ui-tooltip',
+		position: {
+			my: 'center top',
+			at: 'center bottom+10',
+			collision: 'flipfit',
+		},
+		hide: {
+			duration: 200,
+		},
+		show: {
+			duration: 200,
+		},
+	});
+
 	/**
 	 * Download Configuration Metabox
 	 */
@@ -91,6 +110,7 @@ jQuery(document).ready(function ($) {
 					placeholder_text_multiple: edd_vars.one_or_more_option,
 				});
 				clone.find( '.edd-select-chosen' ).css( 'width', '100%' );
+				clone.find( '.edd-select-chosen .chosen-search input' ).attr( 'placeholder', edd_vars.search_placeholder );
 			});
 		},
 
@@ -117,7 +137,20 @@ jQuery(document).ready(function ($) {
 				var row   = $(this).parent().parent( 'tr' ),
 					count = row.parent().find( 'tr' ).length - 1,
 					type  = $(this).data('type'),
-					repeatable = 'tr.edd_repeatable_' + type + 's';
+					repeatable = 'tr.edd_repeatable_' + type + 's',
+					focusElement,
+					focusable,
+					firstFocusable;
+
+					// Set focus on next element if removing the first row. Otherwise set focus on previous element.
+					if ( $(this).is( '.ui-sortable tr:first-child .edd_remove_repeatable:first-child' ) ) {
+						focusElement  = row.next( 'tr' );
+					} else {
+						focusElement  = row.prev( 'tr' );
+					}
+
+					focusable  = focusElement.find( 'select, input, textarea, button' ).filter( ':visible' );
+					firstFocusable = focusable.eq(0);
 
 				if ( type === 'price' ) {
 					var price_row_id = row.data('key');
@@ -128,6 +161,7 @@ jQuery(document).ready(function ($) {
 				if( count > 1 ) {
 					$( 'input, select', row ).val( '' );
 					row.fadeOut( 'fast' ).remove();
+					firstFocusable.focus();
 				} else {
 					switch( type ) {
 						case 'price' :
@@ -403,7 +437,7 @@ jQuery(document).ready(function ($) {
 						currently_removed  = {};
 					}
 
-					var removed_item       = [ { 'id': download_id, 'price_id': price_id, 'quantity': quantity, 'amount': amount } ];
+					var removed_item       = [ { 'id': download_id, 'price_id': price_id, 'quantity': quantity, 'amount': amount, 'cart_index': key } ];
 					currently_removed[key] = removed_item
 
 					$('input[name="edd-payment-removed"]').val(JSON.stringify(currently_removed));
@@ -1122,6 +1156,8 @@ jQuery(document).ready(function ($) {
 		placeholder_text_multiple: edd_vars.one_or_more_option,
 	});
 
+	$('.edd-select-chosen .chosen-search input' ).attr( 'placeholder', edd_vars.search_placeholder );
+
 	// Add placeholders for Chosen input fields
 	$( '.chosen-choices' ).on( 'click', function () {
 		$(this).children('li').children('input').attr( 'placeholder', edd_vars.type_to_search );
@@ -1170,7 +1206,6 @@ jQuery(document).ready(function ($) {
 					data: {
 						action: search_type,
 						s: val,
-						current_id: edd_vars.post_id,
 						no_bundles: no_bundles
 					},
 					dataType: "json",
@@ -1436,6 +1471,207 @@ jQuery(document).ready(function ($) {
 	EDD_Export.init();
 
 	/**
+	 * Import screen JS
+	 */
+	var EDD_Import = {
+
+		init : function() {
+			this.submit();
+		},
+
+		submit : function() {
+
+			var self = this;
+
+			$('.edd-import-form').ajaxForm({
+				beforeSubmit: self.before_submit,
+				success: self.success,
+				complete: self.complete,
+				dataType: 'json',
+				error: self.error
+			});
+
+		},
+
+		before_submit : function( arr, $form, options ) {
+
+			$form.find('.notice-wrap').remove();
+			$form.append( '<div class="notice-wrap"><span class="spinner is-active"></span><div class="edd-progress"><div></div></div></div>' );
+
+			//check whether client browser fully supports all File API
+			if ( window.File && window.FileReader && window.FileList && window.Blob ) {
+
+				// HTML5 File API is supported by browser
+
+			} else {
+
+				var import_form = $('.edd-import-form').find('.edd-progress').parent().parent();
+				var notice_wrap = import_form.find('.notice-wrap');
+
+				import_form.find('.button-disabled').removeClass('button-disabled');
+
+				//Error for older unsupported browsers that doesn't support HTML5 File API
+				notice_wrap.html('<div class="update error"><p>' + edd_vars.unsupported_browser + '</p></div>');
+				return false;
+
+			}
+
+		},
+
+		success: function( responseText, statusText, xhr, $form ) {},
+
+		complete: function( xhr ) {
+
+			var response = jQuery.parseJSON( xhr.responseText );
+
+			if( response.success ) {
+
+				var $form = $('.edd-import-form .notice-wrap').parent();
+
+				$form.find('.edd-import-file-wrap,.notice-wrap').remove();
+
+				$form.find('.edd-import-options').slideDown();
+
+				// Show column mapping
+				var select  = $form.find('select.edd-import-csv-column');
+				var row     = select.parent().parent();
+				var options = '';
+
+				var columns = response.data.columns.sort(function(a,b) {
+					if( a < b ) return -1;
+					if( a > b ) return 1;
+					return 0;
+				});
+
+				$.each( columns, function( key, value ) {
+					options += '<option value="' + value + '">' + value + '</option>';
+				});
+
+				select.append( options );
+
+				select.on('change', function() {
+					var $key = $(this).val();
+
+					if( ! $key ) {
+
+						$(this).parent().next().html( '' );
+
+					} else {
+
+						if( false != response.data.first_row[$key] ) {
+							$(this).parent().next().html( response.data.first_row[$key] );
+						} else {
+							$(this).parent().next().html( '' );
+						}
+
+					}
+
+				});
+
+				$('body').on('click', '.edd-import-proceed', function(e) {
+
+					e.preventDefault();
+
+					$form.append( '<div class="notice-wrap"><span class="spinner is-active"></span><div class="edd-progress"><div></div></div></div>' );
+
+					response.data.mapping = $form.serialize();
+
+					EDD_Import.process_step( 1, response.data, self );
+				});
+
+			} else {
+
+				EDD_Import.error( xhr );
+
+			}
+
+		},
+
+		error : function( xhr ) {
+
+			// Something went wrong. This will display error on form
+
+			var response    = jQuery.parseJSON( xhr.responseText );
+			var import_form = $('.edd-import-form').find('.edd-progress').parent().parent();
+			var notice_wrap = import_form.find('.notice-wrap');
+
+			import_form.find('.button-disabled').removeClass('button-disabled');
+
+			if ( response.data.error ) {
+
+				notice_wrap.html('<div class="update error"><p>' + response.data.error + '</p></div>');
+
+			} else {
+
+				notice_wrap.remove();
+
+			}
+		},
+
+		process_step : function( step, import_data, self ) {
+
+			$.ajax({
+				type: 'POST',
+				url: ajaxurl,
+				data: {
+					form: import_data.form,
+					nonce: import_data.nonce,
+					class: import_data.class,
+					upload: import_data.upload,
+					mapping: import_data.mapping,
+					action: 'edd_do_ajax_import',
+					step: step,
+				},
+				dataType: "json",
+				success: function( response ) {
+
+					if( 'done' == response.data.step || response.data.error ) {
+
+						// We need to get the actual in progress form, not all forms on the page
+						var import_form  = $('.edd-import-form').find('.edd-progress').parent().parent();
+						var notice_wrap  = import_form.find('.notice-wrap');
+
+						import_form.find('.button-disabled').removeClass('button-disabled');
+
+						if ( response.data.error ) {
+
+							notice_wrap.html('<div class="update error"><p>' + response.data.error + '</p></div>');
+
+						} else {
+
+							import_form.find( '.edd-import-options' ).hide();
+							$('html, body').animate({
+								scrollTop: import_form.parent().offset().top
+							}, 500 );
+
+							notice_wrap.html('<div class="updated"><p>' + response.data.message + '</p></div>');
+
+						}
+
+					} else {
+
+						$('.edd-progress div').animate({
+							width: response.data.percentage + '%',
+						}, 50, function() {
+							// Animation complete.
+						});
+
+						EDD_Import.process_step( parseInt( response.data.step ), import_data, self );
+					}
+
+				}
+			}).fail(function (response) {
+				if ( window.console && window.console.log ) {
+					console.log( response );
+				}
+			});
+
+		}
+
+	};
+	EDD_Import.init();
+
+	/**
 	 * Customer management screen JS
 	 */
 	var EDD_Customer = {
@@ -1449,6 +1685,7 @@ jQuery(document).ready(function ($) {
 		},
 		init : function() {
 			this.edit_customer();
+			this.add_email();
 			this.user_search();
 			this.remove_user();
 			this.cancel_edit();
@@ -1462,6 +1699,43 @@ jQuery(document).ready(function ($) {
 
 				EDD_Customer.vars.customer_card_wrap_editable.hide();
 				EDD_Customer.vars.customer_card_wrap_edit_item.fadeIn().css( 'display', 'block' );
+			});
+		},
+		add_email: function() {
+			$( document.body ).on( 'click', '#add-customer-email', function(e) {
+				e.preventDefault();
+				var button  = $(this);
+				var wrapper = button.parent();
+
+				wrapper.parent().find('.notice-wrap').remove();
+				wrapper.find('.spinner').css('visibility', 'visible');
+				button.attr('disabled', true);
+
+				var customer_id = wrapper.find('input[name="customer-id"]').val();
+				var email       = wrapper.find('input[name="additional-email"]').val();
+				var primary     = wrapper.find('input[name="make-additional-primary"]').is(':checked');
+				var nonce       = wrapper.find('input[name="add_email_nonce"]').val();
+
+				var postData = {
+					edd_action:  'customer-add-email',
+					customer_id: customer_id,
+					email:       email,
+					primary:     primary,
+					_wpnonce:    nonce,
+				};
+
+				$.post(ajaxurl, postData, function( response ) {
+
+					if ( true === response.success ) {
+						window.location.href=response.redirect;
+					} else {
+						button.attr('disabled', false);
+						wrapper.after('<div class="notice-wrap"><div class="notice notice-error inline"><p>' + response.message + '</p></div></div>');
+						wrapper.find('.spinner').css('visibility', 'hidden');
+					}
+
+				}, 'json');
+
 			});
 		},
 		user_search: function() {
@@ -1574,7 +1848,7 @@ jQuery(document).ready(function ($) {
 	};
 	EDD_Customer.init();
 
-	// Ajax user search
+	// AJAX user search
 	$('.edd-ajax-user-search').keyup(function() {
 		var user_search = $(this).val();
 		var exclude     = '';
