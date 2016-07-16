@@ -1,0 +1,69 @@
+/* Page */
+.page-template-default h1 {margin-bottom:20px;}
+.page h2 {margin-bottom:10px;}
+.page .video {margin:30px 0;}
+
+/* More */
+.page-more .gallery {width:1230px;}
+.page-more iframe {display:block; margin:0;}
+.page-more .container {margin-top:0;}
+
+/* Information & Resources */
+.information-resources {margin-top:30px;}
+.information-resources li {margin-left:0;}
+
+/* Testimonials */
+.testimonials h2 {margin-bottom:30px;}
+.testimonials blockquote {border-bottom:1px dotted #ccc; margin-bottom:25px; padding-bottom:25px;}
+.testimonials blockquote.last {border-bottom:0;}
+
+/* Booking Form */
+.booking-form a {color:#1A1A1A; text-decoration:underline;}
+.booking-form .wpcf7 {border-top:1px dotted #999; margin-top:40px; padding-top:30px;}
+.booking-form .wpcf7 form {width:500px;}
+
+.booking-form form input[type="text"] {width:260px;}
+.booking-form form .large input[type="text"] {width:478px;}
+.booking-form form select {width:200px;}
+.booking-form form textarea {width:478px;}
+.booking-form form .left {float:left; margin-right:20px; width:280px;}
+.booking-form form .right {float:right; width:200px;}
+.booking-form form .button-field {margin-right:-20px; text-align:right;}
+
+/* Phone - Vertical */
+@media (max-width:480px) {
+	.booking-form .wpcf7 form,
+	.booking-form form input[type="text"],
+	.booking-form form input[type="email"],
+	.booking-form form .large input[type="text"],
+	.booking-form form select,
+	.booking-form form textarea {width:100%;}
+	.booking-form form .left {float:none; margin-right:0; width:100%;}
+	.booking-form form .right {float:none; width:100%;}
+	.booking-form form .button-field {margin-right:0; text-align:left;}
+
+}
+
+/* Phone - Horizontal */
+@media (max-width:767px) {
+}
+
+/* Tablet - Vertical */
+@media (min-width:768px) and (max-width:979px) {
+}
+
+/* Tablet - Horizontal */
+@media (min-width:979px) {
+
+}
+
+/* Small Browser */
+@media (min-width:1200px) {
+	
+}
+
+/* Large Browser */
+@media (min-width:1600px) {
+
+}
+

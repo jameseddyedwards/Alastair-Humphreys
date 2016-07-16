@@ -1,0 +1,127 @@
+msgid ""
+msgstr "MIME-Version: 1.0\n"
+
+#. Short description.
+msgid "A very simple shortcode to add your Vimeo videos into your WordPress website!"
+msgstr ""
+
+#. Found in description paragraph.
+msgid "A simple shortcode to add your Vimeo videos into your website! This plugin will enable you to use shortcodes to insert your videos from Vimeo. It also allows height, width and class attributes for further customization! Websites are always affordable from <a href=\"http://www.yourlocalwebmaster.com\">YourLocalWebmaster.com</a>"
+msgstr ""
+
+#. Found in installation list item.
+msgid "<p>Activate the plugin through the 'Plugins' menu in WordPress</p>"
+msgstr ""
+
+#. Found in installation paragraph.
+msgid ""
+"To install very simple wordpress plugin, simply download it and upload it to the Plugins menu.\n"
+"Or, Install it via the \"search\" feature on the plugin page. \"Simple Vimeo Shortcode\""
+msgstr ""
+
+#. Found in installation paragraph.
+msgid "Activate the plugin through the 'Plugins' menu in WordPress"
+msgstr ""
+
+#. Found in changelog paragraph.
+msgid "Added height and width attributes"
+msgstr ""
+
+#. Found in changelog paragraph.
+msgid "Added class attributes"
+msgstr ""
+
+#. Found in changelog paragraph.
+msgid "Added \"portrait\" and \"byline\" attributes. (Inspired by Tim Golden <a href=\"http://www.timgolden.com\">http://www.timgolden.com</a>)"
+msgstr ""
+
+#. Found in changelog paragraph.
+msgid "Added \"title\" option.  Remove the title of the video by adding the attribute  \"title=0\" to the shortcode."
+msgstr ""
+
+#. Found in changelog paragraph.
+msgid "Added documentation for \"title\" option.  Remove the title of the video by adding the attribute  \"title=0\" to the shortcode."
+msgstr ""
+
+#. Found in faq header.
+msgid "Why aren't my height and width attributes working?"
+msgstr ""
+
+#. Found in faq header.
+msgid "Are there any other available attributes?"
+msgstr ""
+
+#. Found in faq header.
+msgid "Why does my video look disproportioned?"
+msgstr ""
+
+#. Found in faq header.
+msgid "How do I enable AutoPlay?"
+msgstr ""
+
+#. Found in faq paragraph.
+msgid "Perhaps you are not aware, but the attributes \"height\" and \"width\" are case sensitive. Please remember to use all lowercase letters when adding attributes."
+msgstr ""
+
+#. Found in faq paragraph.
+msgid "The Current Available Attributes are:"
+msgstr ""
+
+#. Found in faq paragraph.
+msgid ""
+"-height (sets height of video)\n"
+"-width (sets width of video)\n"
+"-class (adds a custom css class to your video)\n"
+"-portrait (when false(default), removes the image from the top left of video)\n"
+"-byline (when false(default), removes \"From #####\"  in the title\n"
+"-autoplay (when true, plays the video automatically) (default: false)\n"
+"-title (when false, removes the title from the video)"
+msgstr ""
+
+#. Found in faq paragraph.
+msgid "When setting height and width attributes, they should maintain the same aspect ration of the original video.."
+msgstr ""
+
+#. Found in faq paragraph.
+msgid "i.e. height=\"250\" width=\"400\", or 1 : 1.6"
+msgstr ""
+
+#. Found in faq paragraph.
+msgid "Autoplay was added in version 2.5. Make sure your current plugin version is &gt; or = 2.5.  IF it is, simply add the attribute \"autoplay=true\" to the shortcode."
+msgstr ""
+
+#. Found in faq paragraph.
+msgid "i.e. [ylwm_vimeo autoplay=\"true\"]1234567[/ylwm_vimeo]"
+msgstr ""
+
+#. Found in remaining content header.
+msgid "Usage Notes"
+msgstr ""
+
+#. Found in remaining content paragraph.
+msgid "<strong>To use the plugin, simply install it, activate it and then call the shortcode within your page or post content.</strong>"
+msgstr ""
+
+#. Found in remaining content paragraph.
+msgid "<em>[ylwm_vimeo]VIDEO_ID[/ylwm_vimeo]</em>"
+msgstr ""
+
+#. Found in remaining content paragraph.
+msgid "Where  VIDEO_ID is the id of the vimeo video."
+msgstr ""
+
+#. Found in remaining content paragraph.
+msgid "To utilize the attributes, add height, width, byline, portrait and/or class to the shortcode."
+msgstr ""
+
+#. Found in remaining content paragraph.
+msgid "<em>[ylwm_vimeo height=\"400\" width=\"600\" class=\"MYCUSTOMCLASS\" portrait=\"false\" byline=\"false\"]VIDEO_ID[/ylwm_vimeo]</em>"
+msgstr ""
+
+#. Found in remaining content paragraph.
+msgid "<em>Auto Play</em>"
+msgstr ""
+
+#. Found in remaining content paragraph.
+msgid "[ylwm_vimeo autoplay=\"true\"]VIDEO_ID[/ylwm_vimeo]"
+msgstr ""

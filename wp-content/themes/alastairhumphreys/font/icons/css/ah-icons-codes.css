@@ -1,0 +1,11 @@
+
+.icon-facebook:before { content: '\72'; } /* 'r' */
+.icon-google-plus:before { content: '\79'; } /* 'y' */
+.icon-instagram:before { content: '\33'; } /* '3' */
+.icon-search:before { content: '\47'; } /* 'G' */
+.icon-tumblr:before { content: '\4f'; } /* 'O' */
+.icon-twitter:before { content: '\50'; } /* 'P' */
+.icon-wikipedia:before { content: '\40'; } /* '@' */
+.icon-wordpress:before { content: '\a3'; } /* '£' */
+.icon-youtube:before { content: '\24'; } /* '$' */
+.icon-angle-down:before { content: '\f107'; } /* '' */

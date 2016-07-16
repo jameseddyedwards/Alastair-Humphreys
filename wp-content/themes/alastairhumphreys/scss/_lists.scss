@@ -1,0 +1,47 @@
+/* Lists */
+ul ul,
+ul ol,
+ol ol,
+ol ul {margin-bottom:0;}
+ul.unstyled,
+ol.unstyled {margin-left:0; list-style:none;}
+dl {margin-bottom:20px;}
+dt, dd {line-height:20px;}
+dt {font-weight:bold;}
+dd {margin-left:10px;}
+hr {margin:20px 0; border:0; border-top:1px dotted #c1c1c1; border-bottom:1px dotted #ffffff;}
+strong {font-weight:bold;}
+em {font-style:italic;}
+.muted {color:#999999;}
+abbr {font-size:90%; text-transform:uppercase; border-bottom:1px dotted #ddd; cursor:help;}
+
+.list-nav li:last-child {margin-right:0; padding-right:0;}
+.list-nav li:last-child a {margin-right:0; padding-right:0;}
+.list-nav li:first-child {margin-left:0; padding-left:0;}
+.list-nav li:first-child a {margin-left:0; padding-left:0;}
+
+.bullet {list-style:disc;}
+.bullet li {margin-left:20px;}
+
+.inline,
+.inline li {display:inline-block; float:left; list-style:none;}
+
+.content {
+	ul,
+	ol {
+		margin:10px 0;
+	}
+
+	li {
+		margin-left:20px;
+	}
+	article li {
+		margin-bottom:5px;
+	}
+	ul {
+		list-style:disc;
+	}
+	ol {
+		list-style:decimal;
+	}
+}

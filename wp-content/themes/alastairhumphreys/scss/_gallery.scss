@@ -1,0 +1,51 @@
+/* Gallery */
+.gallery-thumbs {margin:10px auto 0;}
+.gallery-thumbs a img {display:block;}
+.gallery-thumbs .right {margin-right:0 !important;}
+.gallery-thumbs .post-thumb {height:auto;}
+
+/* Phone - Horizontal */
+@media (max-width:767px) {
+	.gallery-thumbs {text-align:center; width:100% !important;}
+	.gallery-thumbs a img {width:100%;}
+	.gallery-thumbs .post-thumb {display:inline-block !important; float:none !important; max-width:320px; margin:0 0 5px !important; overflow:hidden; width:100%;}
+}
+
+/* Tablet & Smaller */
+@media (max-width:1199px) {
+	.gallery-thumbs .post-thumb {display:inline-block; float:left;}
+	.gallery-thumbs {width:805px;}
+	.gallery-thumbs .large {margin-right:0;}	
+	.gallery-thumbs .post-thumb {margin:5px;}
+}
+
+
+/* Small Monitor */
+@media (min-width:979px) {
+	.gallery-thumbs .post-thumb {display:inline-block; float:left;}
+}
+
+/* XL Monitor */
+@media (min-width:1200px) {
+
+	.gallery-thumbs {width:1230px;}
+	.gallery-thumbs .fl-right {float:right;}
+	.gallery-thumbs .post-thumb {margin:0 10px 10px 0;}
+
+	.gallery-thumbs .small,
+	.gallery-thumbs .medium {height:213px;}
+	.gallery-thumbs .small {width:238px;}
+	.gallery-thumbs .medium {width:362px;}
+	.gallery-thumbs .large {height:436px; width:610px;}	
+}
+
+/* Large Browser */
+@media (min-width:1600px) {
+	.gallery-thumbs {width:1600px;}
+	.gallery-thumbs .small,
+	.gallery-thumbs .medium {height:280px;}
+	.gallery-thumbs .small {width:310px;}
+	.gallery-thumbs .medium {width:475px;}
+	.gallery-thumbs .large {height:570px; width:795px;}
+	.page-template-page-gallery-php .feature-normal {width:1600px;}
+}

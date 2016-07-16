@@ -1,0 +1,15 @@
+
+/* Category */
+.category-blog .entry-content {
+	max-height:590px;
+	overflow:hidden;
+	position:relative;
+}
+.ie .category-blog .entry-content {
+	height:590px;
+}
+
+.wrapper {
+	background:url('../images/icon/loading.gif') no-repeat center 70px;
+	margin-top:20px;
+}

@@ -1,0 +1,128 @@
+/* Carousel */
+.carousel-wrapper {
+	margin:0 auto;
+	max-width:1440px;
+	overflow:hidden;
+	position:relative;
+	width:100%;
+
+	.carousel {
+		img,
+		a {
+			display:block;
+			float:left;
+			height:auto;
+			width:100%;
+		}
+	}
+
+	.next,
+	.previous {
+		height:49px;
+		margin-top:-25px;
+		opacity:0.6;
+		position:absolute;
+		top:50%;
+		width:49px;
+		z-index:10;
+
+		&:hover {
+			opacity:1;
+		}
+	}
+	.next {
+		background:url("../images/icon/right.png") no-repeat;
+		right:20px;
+	}
+	.previous {
+		background:url("../images/icon/left.png") no-repeat;
+		left:20px;
+	}
+}
+
+
+/* Newsletter Block */
+.newsletter-block {
+	h2 {margin:10px 0 0; text-transform:none;}
+	p {margin:0 0 15px;}
+	form input[type="text"] {margin-bottom:0; padding:12px 0 12px 12px; width:50%;}
+	form input[type="submit"] {font-size:16px; line-height:24px; height:40px;}
+}
+
+
+/* Best Bits */
+.best-bits {
+	.head-bar {
+		margin-bottom:20px;
+
+		.view-all {
+			background:url('../images/button/arrow-right.png') no-repeat right 6px;
+			color:#252525;
+			font:18px din-light, sans-serif;
+			float:right;
+			margin-top:8px;
+			padding-right:14px;
+		}
+	}
+
+	.tabs {
+		float:left;
+
+		li {
+			background-color:#ccc;
+			border:1px solid #ccc;
+			cursor:pointer;
+			display:inline-block;
+			float:left;
+			font:20px din-light, sans-serif;
+			margin-left:0;
+			padding:5px 10px 3px;
+			transition:background-color 300ms;
+
+			&:first-child {
+				border-right:0;
+			}
+			&:hover {
+				background-color:#efefef;
+			}
+			&.active {
+				background-color:#fff;
+				cursor:default;
+			}
+		}
+	}
+
+	.tab-row {
+		display:none;
+
+		&.active {
+			display:block;
+		}
+	}
+}
+
+/* Phone - Vertical */
+@media (max-width:480px) {
+	.best-bits .head-bar .view-all {
+		clear:both;
+		display:block;
+		float:left;
+		margin:5px 0 15px;
+	}
+}
+
+
+/* Phone & Tablet */
+@media (max-width:979px) {
+	.best-bits .tabs li {
+		font-size:18px;
+	}
+}
+
+/* Small Browser */
+@media (min-width:1200px) {
+	.best-bits .tabs {
+		display:inline-block;
+		float:left;
+	}
+}

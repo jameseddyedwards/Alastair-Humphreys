@@ -1,0 +1,250 @@
+/* Quotes */
+blockquote,
+blockquote p,
+blockquote a {font-size:18px; line-height:30px; font-style:italic;}
+
+blockquote,
+blockquote p {color:#8d8d8d; display:block; margin:10px 0 30px;}
+
+blockquote a {color:#005580;}
+
+blockquote span,
+blockquote em {clear:both; display:block; font:14px Arial, Helvetica, sans-serif; line-height:30px; margin-left:30px; color:#999999;}
+
+address {display:block; margin-bottom:20px; line-height:20px; font-style:normal;}
+small {font-size:100%;}
+cite {font-style:normal;}
+
+
+/* Utility Classes */
+.arrow-link {background:url('../images/button/arrow-right.png') no-repeat right center; color:#272727; font-size:14px; font-style:italic; padding-right:12px;}
+.bottom {border-bottom:0 !important; margin-bottom:0;}
+.clear {clear:both;}
+.excerpt {color:#191919; display:block; font-size:15px; font-style:italic; line-height:22px;}
+.read {text-transform:uppercase;}
+.hidden {display:none; visibility:hidden;}
+.hide-text {background-color:transparent; border:0; color:transparent; font:0/0 a; text-shadow:none;}
+.lead {margin-bottom:20px; font-size:20px; font-weight:200; line-height:30px;}
+.top {margin-top:0;}
+img.responsive {
+	max-width:100%;
+}
+
+
+/* Feature Images */
+.feature-wide,
+.feature-normal {margin:0 auto;}
+.feature-wide {position:relative; z-index:1;}
+.ltie9 .feature-wide {width:auto;}
+.feature-wide img {position:absolute; width:100%;}
+.feature-wide .title-block {padding-top:100px;}
+.feature-wide .title-block .title,
+.feature-wide .title-block .subtitle {color:white; display:block; position:relative; text-align:center; text-shadow:1px 1px 2px #444;}
+.feature-wide .title-block .subtitle span {display:block; font-family:Georgia, Times-new-roman, serif; font-size:15px; text-align:center;}
+.feature-wide .title-block .subtitle span a {color:white; font-family:Georgia, Times-new-roman, serif; text-decoration:underline;}
+.feature-wide .title-block .title {font-family:serif; margin:0; padding:0 20%; text-transform:none;}
+.feature-wide .title-block .subtitle {font:30px/30px din-light, sans-serif; padding:10px 25% 0;}
+.feature-normal img {display:block; width:100%;}
+
+
+/* Elastic Videos */
+.video-container {height:0; margin:20px 0; overflow:hidden; padding-bottom:56.25%; padding-top:30px; position:relative;}
+.video-container iframe,  
+.video-container object,  
+.video-container embed {height:100%; left:0; margin:0 !important; position:absolute; top:0; width:100%;}
+
+
+/* Content */
+.content iframe,
+.content object {margin:20px 0;}
+.content img {max-width:100%;}
+.ltie9 .content img {width:auto;}
+.content form.search {margin-top:30px;}
+.content .ajax-loader {width:auto;}
+
+.main .excerpt {margin:15px 0 0; overflow:hidden;}
+article .meta {display:block; font-style:italic; margin-bottom:30px;}
+
+
+/* Utility Blocks */
+.assistive-text {position:absolute !important; clip:rect(1px 1px 1px 1px); /* IE6, IE7 */}
+.access a.assistive-text:active,
+.access a.assistive-text:focus {background:#eee; border-bottom:1px solid #ddd; color:#1982d1; clip:auto !important; font-size:12px; position:absolute; text-decoration:underline; top:0; left:7.6%;}
+
+.clearfix, .subscribe, .container {*zoom:1;}
+.clearfix:before, .subscribe:before, .container:before,
+.clearfix:after, .subscribe:after, .container:after {display:table; content:"";}
+.clearfix:after, .subscribe:after, .container:after {clear:both;}
+
+.post-date {margin-top:20px;}
+.post-date a:hover {text-decoration:none;}
+.post-date .month,
+.post-date .year {color:#d2d2d2; display:block; font:45px/40px din-light, helvetica, arial;}
+
+/* Category List */
+.post-categories li {display:inline-block; float:left; margin:0 7px 7px 0;}
+.post-categories li a {border:1px solid #cfcfcf; color:#333; display:block; font:bold 11px Arial, Helvetica, sans-serif; padding:4px 10px; text-transform:uppercase;}
+.post-categories li a:hover,
+.post-categories li a.current {border:1px solid #333; color:#000; text-decoration:none;}
+.post-categories li a.current {cursor:default;}
+
+
+/* Next Previous Links */
+.next-previous {
+	margin:20px 0;
+	
+	div a {
+		background-color:#4e4e4e;
+		border-radius:3px;
+		color:#fff;
+		font:14px/14px din-light, helvetica, arial;
+		padding:9px 20px 7px;
+		text-transform:uppercase;
+
+		&:hover {
+			background-color:black;
+			text-decoration:none;
+		}
+	}
+	.previous a {
+		float:left;
+	}
+	.next a {
+		float:right;
+	}
+}
+
+/* List of Posts */
+.posts {background-color:#fff;}
+.posts .post-thumb {height:175px; margin-bottom:20px;}
+
+.post-thumb {display:block; overflow:hidden; position:relative;}
+.post-thumb span {background:url("../images/background/dark.png"); bottom:0px; box-sizing:border-box; moz-box-sizing:border-box; webkit-box-sizing:border-box; color:#fff; font:18px din-light, sans-serif; left:0px; padding:5px 10px; position:absolute; width:100%;}
+.post-thumb img {width:100%;}
+.post-thumb:hover span {background:url("../images/background/darker.png"); opacity:0.8;}
+
+/* List of links */
+.link-list {
+	margin-bottom:100px;
+
+	li {
+		display:block;
+
+		a {
+			color:#1a1a1a;
+			font-size:18px;
+			line-height:28px;
+
+			&:after {
+				content:"\BB\ ";
+			}
+		}
+	}
+	&.one-column {
+		li {
+			display:block;
+		}
+	}
+}
+
+/* Paypal */
+.paypal-add-to-cart img {width:auto;}
+
+/* Buy Button */
+.edd-submit.button.blue {padding:10px 30px;}
+
+/* Pagination */
+.wp-paginate {
+	margin-top:30px !important;
+
+	.current {
+		background:#333 !important;
+		border:1px solid black !important;
+	}
+}
+
+
+/* Subscribe Button */
+.subscribe {display:block;}
+.subscribe input[type="text"] {border:1px solid #d0d0d0; border-right:0; color:#797979; float:left; font-size:11px; padding:7px 5px 6px;}
+.subscribe input[type="submit"] {background:#1a1a1a; border:none; color:#fff; float:left; font-family:din-light, helvetica, arial; height:27px; line-height:27px;}
+
+/* Responsive Visibility */
+.visible-phone {display:none;}
+.visible-tablet {display:none;}
+.hidden-desktop {display:none;}
+.visible-desktop {display:inherit;}
+
+/* Phone - Vertical */
+@media (max-width:480px) {
+	.feature-wide .title-block {padding:20px 3% 0;}
+	.feature-wide .title-block .title {font-size:20px; line-height:30px;}
+	.feature-wide .title-block .subtitle {display:none;}
+}
+
+/* Phone - Horizontal */
+@media (max-width:767px) {
+	.hidden-desktop {display:inherit;}
+	.visible-desktop {display:none;}
+	.visible-phone {display:inherit;}
+	.hidden-phone {display:none;}
+
+	.post-thumb span {font-size:18px; line-height:26px; padding:5px 3%;}
+
+	.main .excerpt {margin:15px 0 30px;}
+
+	.link-list.two-column li,
+	.link-list.three-column li {display:block;}
+
+	.subscribe input[type="text"] {width:120px;}
+
+	.feature-wide .title-block {padding:100px 3% 0;}
+	.feature-wide .title-block .title {font-size:30px; line-height:30px;}
+	.feature-wide .title-block .subtitle {display:none;}
+}
+
+/* Tablet - Vertical */
+@media (min-width:768px) and (max-width:979px) {
+	.hidden-desktop {display:inherit;}
+	.visible-desktop {display:none;}
+	.visible-tablet {display:inherit;}
+	.hidden-tablet {display:none;}
+
+	.post-thumb span {font-size:14px; line-height:18px; padding:5px 7px;}
+
+	.link-list.two-column li,
+	.link-list.three-column li {float:left; margin-right:2%; width:48%;}
+
+	.subscribe input[type="text"] {width:230px;}
+
+	.feature-wide .title-block {padding-top:80px;}
+	.feature-wide .title-block .title {font-size:38px; line-height:48px;}
+	.feature-wide .title-block .subtitle {font-size:20px; line-height:20px;}
+}
+
+/* Small Browser */
+@media (min-width:979px) {
+	.post-thumb span {font-size:15px; line-height:20px; padding:5px 7px;}
+
+	.link-list.two-column li {float:left; margin-right:2%; width:48%;}
+	.link-list.three-column li {float:left; margin-right:2%; width:31%;}
+
+	.subscribe input[type="text"] {width:230px;}
+
+	.feature-wide .title-block {padding-bottom:170px; padding-top:170px;}
+	.feature-wide .title-block .title {font-size:65px; line-height:65px;}
+	.feature-wide .title-block .subtitle {font-size:20px; line-height:30px;}
+}
+
+/* Medium Browser */
+@media (min-width:1200px) {
+	.post-thumb span {font-size:18px; line-height:26px; padding:5px 10px;}
+
+	.feature-normal {width:1230px;}
+	.feature-wide .title-block {padding-bottom:250px; padding-top:250px;}
+}
+
+/* Large Browser */
+@media (min-width:1600px) {
+	.feature-wide {max-width:1600px;}
+}

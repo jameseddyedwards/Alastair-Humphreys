@@ -1,0 +1,72 @@
+/* Books */
+.book-menu hr {margin-bottom:50px;}
+.book-menu h2 a {color:#333; font-size:37px; line-height:37px;}
+.book-menu .span2 img {width:100%;}
+.book-menu .info h2 {margin-bottom:0;}
+.book-menu .info h2 a:hover {text-decoration:none;}
+.book-menu .info p {margin-bottom:20px;}
+.book-menu .info .box-button {margin-top:0;}
+
+.category-books h3 {color:#333333; font:38px/46px din-light, helvetica, arial; margin-bottom:10px; text-transform:uppercase;}
+
+.formats h2 {color:#333333; font:26px/32px din-light, helvetica, arial; margin-bottom:10px; text-transform:uppercase;}
+.formats .format {border-bottom: 1px dotted #999; display:block; margin-bottom:20px; padding-bottom:40px;}
+.formats .format:last-child {border-bottom:0;}
+.formats .format-image {float:left; width:200px;}
+.formats .format-info {float:left; width:750px;}
+.formats h3 {margin:10px 0 10px;}
+.formats .format .buy-book select {margin:15px 0 10px;}
+.formats .format .buy-book input[type=image] {margin:10px 0;}
+
+.books .row {margin-bottom:30px;}
+.books .book {background-color:white; padding:30px;}
+.books .book .book-cover {display:block;}
+.books .book .book-cover img {height:300px; width:auto;}
+.books .book .content,
+.books .book .content p,
+.books .book .summary {color:#4a4a4a; font-style:italic; min-height:72px;}
+.books .book .content {height:200px; margin:30px 0; overflow-y:scroll; padding-right:20px;}
+.books .book .content p {margin-top:0;}
+.books .book .book-thumb img {margin-top:22px;}
+.books .book .book-thumb .paypal-add-to-cart {margin-top:10px;}
+.books .book h1 {margin-bottom:10px;}
+.books .book .box-button {margin:20px 0 0;}
+
+.further-reading {
+	padding:30px 0;
+
+	h2 {
+		color:#333;
+		font-size:30px;
+		line-height:37px;
+	}
+	ul {
+		margin-bottom:20px;
+
+		li {
+			a {
+				color:#333;
+				font-style:italic;
+
+				&:after {
+					content:" \BB \ ";
+				}
+			}
+		}
+	}
+}
+
+
+/* Media Queries */
+@media (max-width:480px) {
+	.books .row {margin-bottom:0;}
+	.books .book {margin-bottom:30px;}
+}
+
+@media (max-width:767px) {
+	.formats .format-info {margin-top:20px; width:100%;}
+}
+
+@media (min-width:768px) and (max-width:979px) {
+	.formats .format-info {width:350px;}
+}
