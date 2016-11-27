@@ -19,6 +19,7 @@
 */
 
 class Tiny_Plugin extends Tiny_WP_Base {
+	const VERSION = '2.1.0';
 	const MEDIA_COLUMN = self::NAME;
 	const DATETIME_FORMAT = 'Y-m-d G:i:s';
 
@@ -32,13 +33,10 @@ class Tiny_Plugin extends Tiny_WP_Base {
 	}
 
 	public static function version() {
-		if ( is_null( self::$version ) ) {
-			$plugin_data = get_plugin_data( dirname( __FILE__ ) . '/../tiny-compress-images.php' );
-			self::$version = $plugin_data['Version'];
-		}
-		return self::$version;
+		/* Avoid using get_plugin_data() because it is not loaded early enough
+		   in xmlrpc.php. */
+		return self::VERSION;
 	}
-
 
 	public function __construct() {
 		parent::__construct();
@@ -115,6 +113,16 @@ class Tiny_Plugin extends Tiny_WP_Base {
 			$this->get_method( 'add_plugin_links' )
 		);
 
+		add_action( 'wr2x_retina_file_added',
+			$this->get_method( 'compress_retina_image' ),
+			10, 3
+		);
+
+		add_action( 'wr2x_retina_file_removed',
+			$this->get_method( 'remove_retina_image' ),
+			10, 2
+		);
+
 		add_thickbox();
 	}
 
@@ -143,11 +151,28 @@ class Tiny_Plugin extends Tiny_WP_Base {
 		return array_merge( $additional, $current_links );
 	}
 
+	public function compress_retina_image( $attachment_id, $path, $size_name ) {
+		if ( $this->settings->compress_wr2x_images() ) {
+			$tiny_image = new Tiny_Image( $this->settings, $attachment_id );
+			$tiny_image->compress_retina( $size_name . '_wr2x', $path );
+		}
+	}
+
+	public function remove_retina_image( $attachment_id, $path ) {
+		$tiny_image = new Tiny_Image( $this->settings, $attachment_id );
+		$tiny_image->remove_retina_metadata();
+	}
+
 	public function enqueue_scripts( $hook ) {
-		wp_enqueue_style( self::NAME .'_admin', plugins_url( '/css/admin.css', __FILE__ ),
-		array(), self::version() );
-		wp_register_script( self::NAME .'_admin', plugins_url( '/js/admin.js', __FILE__ ),
-		array(), self::version(), true );
+		wp_enqueue_style( self::NAME .'_admin',
+			plugins_url( '/css/admin.css', __FILE__ ),
+			array(), self::version()
+		);
+
+		wp_register_script( self::NAME .'_admin',
+			plugins_url( '/js/admin.js', __FILE__ ),
+			array(), self::version(), true
+		);
 
 		// WordPress < 3.3 does not handle multidimensional arrays
 		wp_localize_script( self::NAME .'_admin', 'tinyCompress', array(
@@ -196,7 +221,7 @@ class Tiny_Plugin extends Tiny_WP_Base {
 
 	public function compress_on_upload( $metadata, $attachment_id ) {
 		if ( ! empty( $metadata ) ) {
-			$tiny_image = new Tiny_Image( $attachment_id, $metadata );
+			$tiny_image = new Tiny_Image( $this->settings, $attachment_id, $metadata );
 			$result = $tiny_image->compress( $this->settings );
 			return $tiny_image->get_wp_metadata();
 		} else {
@@ -235,7 +260,7 @@ class Tiny_Plugin extends Tiny_WP_Base {
 			exit;
 		}
 
-		$tiny_image = new Tiny_Image( $id, $metadata );
+		$tiny_image = new Tiny_Image( $this->settings, $id, $metadata );
 		$result = $tiny_image->compress( $this->settings );
 
 		// The wp_update_attachment_metadata call is thrown because the
@@ -280,11 +305,11 @@ class Tiny_Plugin extends Tiny_WP_Base {
 			exit;
 		}
 
-		$tiny_image_before = new Tiny_Image( $id, $metadata );
+		$tiny_image_before = new Tiny_Image( $this->settings, $id, $metadata );
 		$image_statistics_before = $tiny_image_before->get_statistics();
 		$size_before = $image_statistics_before['optimized_total_size'];
 
-		$tiny_image = new Tiny_Image( $id, $metadata );
+		$tiny_image = new Tiny_Image( $this->settings, $id, $metadata );
 		$result = $tiny_image->compress( $this->settings );
 		$image_statistics = $tiny_image->get_statistics();
 		wp_update_attachment_metadata( $id, $tiny_image->get_wp_metadata() );
@@ -324,13 +349,12 @@ class Tiny_Plugin extends Tiny_WP_Base {
 		if ( ! $this->check_ajax_referer() ) {
 			exit();
 		}
-		$stats = Tiny_Image::get_optimization_statistics();
+		$stats = Tiny_Image::get_optimization_statistics( $this->settings );
 		echo json_encode( $stats );
 		exit();
 	}
 
 	public function media_library_bulk_action() {
-		check_admin_referer( 'bulk-media' );
 
 		if ( empty( $_REQUEST['action'] ) || (
 				'tiny_bulk_action' != $_REQUEST['action'] &&
@@ -342,6 +366,7 @@ class Tiny_Plugin extends Tiny_WP_Base {
 			return;
 		}
 
+		check_admin_referer( 'bulk-media' );
 		$ids = implode( '-', array_map( 'intval', $_REQUEST['media'] ) );
 		wp_redirect(add_query_arg(
 			'_wpnonce',
@@ -358,7 +383,7 @@ class Tiny_Plugin extends Tiny_WP_Base {
 
 	public function render_media_column( $column, $id ) {
 		if ( self::MEDIA_COLUMN === $column ) {
-			$tiny_image = new Tiny_Image( $id );
+			$tiny_image = new Tiny_Image( $this->settings, $id );
 			if ( $tiny_image->file_type_allowed() ) {
 				echo '<div class="tiny-ajax-container">';
 				$this->render_compress_details( $tiny_image );
@@ -369,7 +394,7 @@ class Tiny_Plugin extends Tiny_WP_Base {
 
 	public function show_media_info() {
 		global $post;
-		$tiny_image = new Tiny_Image( $post->ID );
+		$tiny_image = new Tiny_Image( $this->settings, $post->ID );
 		if ( $tiny_image->file_type_allowed() ) {
 			echo '<div class="misc-pub-section tiny-compress-images">';
 			echo '<h4>';
@@ -392,7 +417,7 @@ class Tiny_Plugin extends Tiny_WP_Base {
 	}
 
 	public function render_bulk_optimization_page() {
-		$stats = Tiny_Image::get_optimization_statistics();
+		$stats = Tiny_Image::get_optimization_statistics( $this->settings );
 		$estimated_costs = Tiny_Compress::estimate_cost(
 			$stats['available-unoptimised-sizes'],
 			$this->settings->get_compression_count()
@@ -431,6 +456,12 @@ class Tiny_Plugin extends Tiny_WP_Base {
 			}
 		}
 		return $admin_colors;
+	}
+
+	function friendly_user_name() {
+		$user = wp_get_current_user();
+		$name = ucfirst( empty( $user->first_name ) ? $user->display_name : $user->first_name );
+		return $name;
 	}
 
 	private function get_ids_to_compress() {
