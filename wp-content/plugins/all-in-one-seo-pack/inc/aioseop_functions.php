@@ -3,7 +3,7 @@
  * General functions file.
  *
  * We'll eventually move these to a better place, and figure out ones not being used anymore.
- * 
+ *
  * @package All-in-One-SEO-Pack
  */
 
@@ -95,23 +95,6 @@ if ( ! function_exists( 'aioseop_mrt_mkarry' ) ) {
 	}
 }
 
-if ( ! function_exists( 'aioseop_activate_pl' ) ) {
-	/**
-	 * @TODO see if this still gets used.
-	 */
-	function aioseop_activate_pl() {
-		if ( $aioseop_options = get_option( 'aioseop_options' ) ) {
-			$aioseop_options['aiosp_enabled'] = '0';
-
-			if ( empty( $aioseop_options['aiosp_posttypecolumns'] ) ) {
-				$aioseop_options['aiosp_posttypecolumns'] = array( 'post', 'page' );
-			}
-
-			update_option( 'aioseop_options', $aioseop_options );
-		}
-	}
-}
-
 if ( ! function_exists( 'aioseop_get_version' ) ) {
 	/**
 	 * Returns the version.
@@ -144,7 +127,6 @@ if ( ! function_exists( 'aioseop_addmycolumns' ) ) {
 	/**
 	 * Adds posttype columns.
 	 *
-	 * @TODO We should see if this is still being used, and move it either way.
 	 */
 	function aioseop_addmycolumns() {
 		global $aioseop_options, $pagenow;
@@ -159,7 +141,6 @@ if ( ! function_exists( 'aioseop_addmycolumns' ) ) {
 		} else {
 			$post_type = $_REQUEST['post_type'];
 		}
-
 		if ( is_array( $aiosp_posttypecolumns ) && in_array( $post_type, $aiosp_posttypecolumns ) ) {
 			add_action( 'admin_head', 'aioseop_admin_head' );
 			if ( $post_type === 'page' ) {
@@ -230,7 +211,7 @@ if ( ! function_exists( 'aioseop_admin_head' ) ) {
 				width: 100%;
 			}
 
-			.aioseop_mpc_admin_meta_options.editing {
+			.aioseop_mpc_admin_meta_options.aio_editing {
 				max-height: initial;
 				overflow: visible;
 			}
@@ -577,12 +558,11 @@ if ( ! function_exists( 'aioseop_ajax_scan_header' ) ) {
 			$meta .= "<p><div class='aioseop_meta_info'><h3 style='padding:5px;margin-bottom:0px;'>" . __( 'What Does This Mean?', 'all-in-one-seo-pack' ) . "</h3><div style='padding:5px;padding-top:0px;'>"
 			         . '<p>' . __( 'All in One SEO Pack has detected that a plugin(s) or theme is also outputting social meta tags on your site. You can view this social meta in the source code of your site (check your browser help for instructions on how to view source code).', 'all-in-one-seo-pack' )
 			         . '</p><p>' . __( 'You may prefer to use the social meta tags that are being output by the other plugin(s) or theme. If so, then you should deactivate this Social Meta feature in All in One SEO Pack Feature Manager.', 'all-in-one-seo-pack' )
-			         . '</p><p>' . __( 'You should avoid duplicate social meta tags. You can use these free tools from Facebook, Google and Twitter to validate your social meta and check for errors:', 'all-in-one-seo-pack' ) . '</p>';
+			         . '</p><p>' . __( 'You should avoid duplicate social meta tags. You can use these free tools from Facebook and Twitter to validate your social meta and check for errors:', 'all-in-one-seo-pack' ) . '</p>';
 
 			foreach (
 				Array(
 					'https://developers.facebook.com/tools/debug',
-					'http://www.google.com/webmasters/tools/richsnippets',
 					'https://dev.twitter.com/docs/cards/validation/validator',
 				) as $link
 			) {
@@ -814,101 +794,6 @@ if ( ! function_exists( 'aioseop_mrt_exclude_this_page' ) ) {
 	}
 }
 
-if ( ! function_exists( 'aioseop_get_pages_start' ) ) {
-
-	/**
-	 * @param $excludes
-	 *
-	 * @return mixed
-	 */
-	function aioseop_get_pages_start( $excludes ) {
-		global $aioseop_get_pages_start;
-		$aioseop_get_pages_start = 1;
-
-		return $excludes;
-	}
-}
-
-if ( ! function_exists( 'aioseop_get_pages' ) ) {
-
-	/**
-	 * @param $pages
-	 *
-	 * @return mixed
-	 */
-	function aioseop_get_pages( $pages ) {
-		global $aioseop_get_pages_start;
-		if ( ! $aioseop_get_pages_start ) {
-			return $pages;
-		}
-		foreach ( $pages as $k => $v ) {
-			$postID    = $v->ID;
-			$menulabel = stripslashes( get_post_meta( $postID, '_aioseop_menulabel', true ) );
-			if ( $menulabel ) {
-				$pages[ $k ]->post_title = $menulabel;
-			}
-		}
-		$aioseop_get_pages_start = 0;
-
-		return $pages;
-	}
-}
-
-// The following two functions are GPLed from Sarah G's Page Menu Editor, http://wordpress.org/extend/plugins/page-menu-editor/.
-if ( ! function_exists( 'aioseop_list_pages' ) ) {
-	/**
-	 * Adds stuff to the HTML in list_pages.
-	 * @TODO See if we still use, or even want, these functions.
-	 *
-	 * @param $content
-	 *
-	 * @return mixed
-	 */
-	function aioseop_list_pages( $content ) {
-		global $wp_version;
-		$matches = array();
-		if ( preg_match_all( '/<li class="page_item page-item-(\d+)/i', $content, $matches ) ) {
-			update_postmeta_cache( array_values( $matches[1] ) );
-			unset( $matches );
-			if ( $wp_version >= 3.3 ) {
-				$pattern = '@<li class="page_item page-item-(\d+)([^\"]*)"><a href=\"([^\"]+)">@is';
-			} else {
-				$pattern = '@<li class="page_item page-item-(\d+)([^\"]*)"><a href=\"([^\"]+)" title="([^\"]+)">@is';
-			}
-
-			return preg_replace_callback( $pattern, 'aioseop_filter_callback', $content );
-		}
-
-		return $content;
-	}
-}
-
-if ( ! function_exists( 'aioseop_filter_callback' ) ) {
-
-	/**
-	 * @param $matches
-	 *
-	 * @return string
-	 */
-	function aioseop_filter_callback( $matches ) {
-		if ( $matches[1] && ! empty( $matches[1] ) ) {
-			$postID = $matches[1];
-		}
-		if ( empty( $postID ) ) {
-			$postID = get_option( 'page_on_front' );
-		}
-		$title_attrib = stripslashes( get_post_meta( $postID, '_aioseop_titleatr', true ) );
-		if ( empty( $title_attrib ) && ! empty( $matches[4] ) ) {
-			$title_attrib = $matches[4];
-		}
-		if ( ! empty( $title_attrib ) ) {
-			$title_attrib = ' title="' . strip_tags( $title_attrib ) . '"';
-		}
-
-		return '<li class="page_item page-item-' . $postID . $matches[2] . '"><a href="' . $matches[3] . '"' . $title_attrib . '>';
-	}
-}
-
 if ( ! function_exists( 'aioseop_add_contactmethods' ) ) {
 
 	/**
@@ -974,57 +859,6 @@ if ( ! function_exists( 'aioseop_array_insert_after' ) ) {
 	}
 }
 
-if ( ! function_exists( 'aioseop_load_json_services' ) ) {
-	/**
-	 * JSON support for PHP < 5.2.
-	 *
-	 * @TODO Do we really need to support < PHP 5.2 with the following functions??
-	 * @return null|Services_JSON
-	 */
-	function aioseop_load_json_services() {
-		static $services_json = null;
-		if ( $services_json ) {
-			return $services_json;
-		}
-		if ( ! class_exists( 'Services_JSON' ) ) {
-			require_once( 'inc/extlib/JSON.php' );
-		}
-		if ( ! $services_json ) {
-			$services_json = new Services_JSON();
-		}
-
-		return $services_json;
-	}
-}
-
-if ( ! function_exists( 'json_encode' ) ) {
-
-	/**
-	 * @param $arg
-	 *
-	 * @return mixed
-	 */
-	function json_encode( $arg ) {
-		$services_json = aioseop_load_json_services();
-
-		return $services_json->encode( $arg );
-	}
-}
-
-if ( ! function_exists( 'json_decode' ) ) {
-
-	/**
-	 * @param $arg
-	 *
-	 * @return mixed
-	 */
-	function json_decode( $arg ) {
-		$services_json = aioseop_load_json_services();
-
-		return $services_json->decode( $arg );
-	}
-}
-
 if ( ! function_exists( 'fnmatch' ) ) {
 	/**
 	 * Support for fnmatch() doesn't exist on Windows pre PHP 5.3.
@@ -1039,6 +873,22 @@ if ( ! function_exists( 'fnmatch' ) ) {
 				'\*' => '.*',
 				'\?' => '.',
 			) ) . "$#i", $string );
+	}
+}
+
+if ( ! function_exists('aiosp_log')) {
+	function aiosp_log ( $log )  {
+
+		global $aioseop_options;
+
+		if ( ! empty( $aioseop_options ) && isset( $aioseop_options['aiosp_do_log'] ) && $aioseop_options['aiosp_do_log'] ) {
+
+			if ( is_array( $log ) || is_object( $log ) ) {
+				error_log( print_r( $log, true ) );
+			} else {
+				error_log( $log );
+			}
+		}
 	}
 }
 

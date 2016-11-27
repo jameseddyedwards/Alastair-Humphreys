@@ -117,7 +117,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Feature_Manager' ) ) {
 			$this->layout = array(
 				'default' => array(
 					'name'      => $this->name,
-					'help_link' => 'http://semperplugins.com/documentation/feature-manager/',
+					'help_link' => 'https://semperplugins.com/documentation/feature-manager/',
 					'options'   => array_keys( $this->default_options ),
 				),
 			);
@@ -185,7 +185,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Feature_Manager' ) ) {
 				$args['attr'] .= " id='{$args['options']['id']}'";
 			}
 
-			return $buf . "<div {$args['attr']}><label for='{$args['name']}'><div id='free-flag'>FREE</div>{$name}{$img}{$desc}{$checkbox}</label></div>";
+			return $buf . "<div {$args['attr']}><label for='{$args['name']}'><div class='free flag'>FREE</div><div class='pro flag'>PRO</div>{$name}{$img}{$desc}{$checkbox}</label></div>";
 		}
 	}
 }

@@ -38,7 +38,9 @@ if ( class_exists( 'WPSEO_Import_Hooks' ) ) {
 		}
 	}
 } else {
-	add_action( 'init', 'mi_aioseop_yst_detected_notice_dismissed' );
+	if(is_admin()) {
+		add_action( 'init', 'mi_aioseop_yst_detected_notice_dismissed' );
+	}
 }
 
 /**
@@ -162,7 +164,7 @@ function aiosp_seometa_admin() {
 		</p>
 
 		<p><span
-				class="row-title"><?php printf( esc_html__( 'Before performing an import, we strongly recommend that you make a backup of your site. We use and recommend %s BackupBuddy %s for backups.', 'all-in-one-seo-pack' ), sprintf( '<a target="_blank" href="%s">', esc_url( 'http://semperfiwebdesign.com/backupbuddy/' ) ), '</a>' ); ?></span>
+				class="row-title"><?php printf( esc_html__( 'Before performing an import, we strongly recommend that you make a backup of your site. We use and recommend %s BackupBuddy %s for backups.', 'all-in-one-seo-pack' ), sprintf( '<a target="_blank" href="%s">', esc_url( 'https://semperfiwebdesign.com/backupbuddy/' ) ), '</a>' ); ?></span>
 		</p>
 
 
@@ -475,9 +477,10 @@ function aiosp_seometa_import() {
 	 */
 	$_aiosp_seometa_plugins = array(
 		// alphabatized
-		'Add Meta Tags'                => array(
-			'META Description' => 'description',
-			'META Keywords'    => 'keywords',
+		'Add Meta Tags' => array(
+			'Custom Doctitle'  => '_amt_title',
+			'META Description' => '_amt_description',
+			'META Keywords'    => '_amt_keywords',
 		),
 		'All in One SEO Pack'          => array(
 			'Custom Doctitle'  => '_aioseop_title',
