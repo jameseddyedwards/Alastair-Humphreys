@@ -97,7 +97,9 @@ class WC_Product_Variation extends WC_Product {
 	 * @return bool
 	 */
 	public function __isset( $key ) {
-		if ( in_array( $key, array_keys( $this->variation_level_meta_data ) ) ) {
+		if ( in_array( $key, array( 'variation_data', 'variation_has_stock' ) ) ) {
+			return true;
+		} elseif ( in_array( $key, array_keys( $this->variation_level_meta_data ) ) ) {
 			return metadata_exists( 'post', $this->variation_id, '_' . $key );
 		} elseif ( in_array( $key, array_keys( $this->variation_inherited_meta_data ) ) ) {
 			return metadata_exists( 'post', $this->variation_id, '_' . $key ) || metadata_exists( 'post', $this->id, '_' . $key );
@@ -203,7 +205,7 @@ class WC_Product_Variation extends WC_Product {
 	 * @return string
 	 */
 	public function add_to_cart_text() {
-		$text = $this->is_purchasable() && $this->is_in_stock() ? __( 'Add to cart', 'woocommerce' ) : __( 'Read More', 'woocommerce' );
+		$text = $this->is_purchasable() && $this->is_in_stock() ? __( 'Add to cart', 'woocommerce' ) : __( 'Read more', 'woocommerce' );
 
 		return apply_filters( 'woocommerce_product_add_to_cart_text', $text, $this );
 	}
@@ -396,7 +398,7 @@ class WC_Product_Variation extends WC_Product {
 	 * @return int
 	 */
 	public function get_stock_quantity() {
-		return true === $this->managing_stock() ? wc_stock_amount( $this->stock ) : $this->parent->get_stock_quantity();
+		return apply_filters( 'woocommerce_variation_get_stock_quantity', true === $this->managing_stock() ? wc_stock_amount( $this->stock ) : $this->parent->get_stock_quantity(), $this );
 	}
 
 	/**
@@ -569,7 +571,7 @@ class WC_Product_Variation extends WC_Product {
 		if ( true === $this->managing_stock() ) {
 			return parent::is_on_backorder( $qty_in_cart );
 		} else {
-			return $this->parent->is_on_backorder( $qty_in_cart );
+			return $this->parent->managing_stock() && $this->parent->backorders_allowed() && ( $this->parent->get_stock_quantity() - $qty_in_cart ) < 0;
 		}
 	}
 

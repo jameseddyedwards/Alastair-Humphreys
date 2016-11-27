@@ -160,8 +160,11 @@ class WC_Webhook {
 			// creation date to determine the actual event
 			$resource = get_post( absint( $arg ) );
 
+			// Drafts don't have post_date_gmt so calculate it here
+			$gmt_date = get_gmt_from_date( $resource->post_date );
+
 			// a resource is considered created when the hook is executed within 10 seconds of the post creation date
-			$resource_created = ( ( time() - 10 ) <= strtotime( $resource->post_date_gmt ) );
+			$resource_created = ( ( time() - 10 ) <= strtotime( $gmt_date ) );
 
 			if ( 'created' == $this->get_event() && ! $resource_created ) {
 				$should_deliver = false;
@@ -355,7 +358,8 @@ class WC_Webhook {
 		if ( is_wp_error( $response ) ) {
 			$response_code    = $response->get_error_code();
 			$response_message = $response->get_error_message();
-			$response_headers = $response_body = array();
+			$response_headers = array();
+			$response_body    = '';
 
 		} else {
 			$response_code    = wp_remote_retrieve_response_code( $response );
