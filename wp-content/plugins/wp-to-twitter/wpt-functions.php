@@ -442,16 +442,16 @@ function wtt_option_selected( $field, $value, $type = 'checkbox' ) {
 /**
  * Compares two dates to identify which is earlier. Used to differentiate between post edits and original publication.
  * 
- * @param string $early
+ * @param string $modified
  * @param string $late
  * 
  * @return integer 1|0
  */ 
-function wpt_date_compare( $early, $late ) {
+function wpt_date_compare( $modified, $postdate ) {
 	$modifier  = apply_filters( 'wpt_edit_sensitivity', 0 ); // alter time in seconds to modified date.
-	$firstdate = strtotime( $early );
-	$lastdate  = strtotime( $late ) + $modifier;
-	if ( $firstdate <= $lastdate ) { // if post_modified is before or equal to post_date
+	$mod_date = strtotime( $modified );
+	$post_date  = strtotime( $postdate ) + $modifier;
+	if ( $mod_date <= $post_date ) { // if post_modified is before or equal to post_date
 		return 1;
 	} else {
 		return 0;
@@ -498,7 +498,7 @@ function wpt_get_support_form() {
 	// send fields for WP to Twitter
 	$license = ( get_option( 'wpt_license_key' ) != '' ) ? get_option( 'wpt_license_key' ) : 'none';
 	if ( $license != 'none' ) {
-		$valid = ( ( get_option( 'wpt_license_valid' ) == 'true' ) || ( get_option( 'wpt_license_valid' ) == 'active' ) ) ? ' (active)' : ' (inactive)';
+		$valid = ( ( get_option( 'wpt_license_valid' ) == 'true' ) || ( get_option( 'wpt_license_valid' ) == 'active' ) || ( get_option( 'wpt_license_valid' ) == 'valid' ) ) ? ' (active)' : ' (inactive)';
 	} else {
 		$valid = '';
 	}

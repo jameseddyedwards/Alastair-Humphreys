@@ -187,6 +187,8 @@ function wpt_update_settings() {
 	<?php $elem = ( version_compare( '4.3', get_option( 'version' ), '>=' ) ) ? 'h1' : 'h2'; ?>
 	<<?php echo $elem; ?>><?php _e( "WP to Twitter Options", 'wp-to-twitter' ); ?></<?php echo $elem; ?>>
 	
+	<?php wpt_max_length(); ?>
+	
 	<div class='nav-tab-wrapper'>
 		<?php wpt_settings_tabs(); ?>
 	</div>
