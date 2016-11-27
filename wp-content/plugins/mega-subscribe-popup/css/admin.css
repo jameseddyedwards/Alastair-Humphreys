@@ -1,0 +1,98 @@
+table.megasubscribepopup_useroptions {
+	width: 100%;
+	border-collapse: collapse;
+}
+table.megasubscribepopup_useroptions em {
+	font-size: 11px;
+	color: #A0A0A0;
+}
+table.megasubscribepopup_useroptions td,
+table.megasubscribepopup_useroptions th {
+	padding: 5px 5px 5px 5px;
+	vertical-align: top;
+	border: 0px solid #C0C0C0;
+	text-align: left;
+}
+table.megasubscribepopup_useroptions th {
+	width: 180px;
+}
+table.megasubscribepopup_useroptions a{
+	color: #0080FF;
+	text-decoration: none;
+}
+table.megasubscribepopup_useroptions a:hover{
+	text-decoration: underline;
+}
+
+.admin_megasubscribepopup_wrap table.megasubscribepopup_users {
+	width: 100%;
+	border-collapse: collapse;
+}
+.admin_megasubscribepopup_wrap table.megasubscribepopup_users tr {
+
+}
+.admin_megasubscribepopup_wrap table.megasubscribepopup_users td,
+.admin_megasubscribepopup_wrap table.megasubscribepopup_users th {
+	padding: 5px 5px 5px 5px;
+	vertical-align: top;
+	border: 1px solid #C0C0C0;
+}
+
+.admin_megasubscribepopup_wrap table.megasubscribepopup_users th {
+	background-color: #E0DBD0;
+	vertical-align: middle;
+}
+
+.admin_megasubscribepopup_wrap table.megasubscribepopup_users a{
+	color: #0080FF;
+	text-decoration: none;
+}
+.admin_megasubscribepopup_wrap table.megasubscribepopup_users a:hover{
+	text-decoration: underline;
+}
+.megasubscribepopup_buttons {text-align: right; margin-bottom: 10px; margin-top: 10px; float: right;}
+.megasubscribepopup_pageswitcher {
+	margin-right: 200px;
+	float: left;
+}
+.megasubscribepopup_pageswitcher div {float: none !important;}
+
+.megasubscribepopup_legend  {margin-top: 50px;}
+.megasubscribepopup_legend  p {margin-top: 2px; margin-bottom: 2px; height: 100%; overflow: hidden;}
+.megasubscribepopup_legend  img {float: left; margin-right: 10px;}
+
+
+.column-megasubscribepopup { width: 30px;}
+.metabox-prefs img.megasubscribepopup_icon {display: none;}
+img.megasubscribepopup_icon {float: left; margin-top: -3px; margin-right: 5px;}
+
+#megasubscribepopup_icontact_progress {display: none;}
+
+.megasubscribepopup_postbox .inside {overflow: hidden; height: 100%;}
+#megasubscribepopup-aweber-loading {
+	margin: 0 10px !important;
+	padding: 0 !important;
+	background: transparent !important;
+	border-width: 0 !important;
+	display: none;
+	vertical-align: middle;
+	box-shadow: none !important;
+	-webkit-box-shadow: none !important;
+	-moz-box-shadow: none !important;
+}
+#megasubscribepopup-aweber-message {
+	display: none; 
+	line-height: 22px; 
+	background: #FBE3E4 url('../images/error.gif') no-repeat 10px 6px; 
+	padding: 3px 10px 3px 35px; 
+	color:#8a1f11;
+	border: 1px solid #FBC2C4; 
+	border-radius: 3px; 
+	-moz-border-radius: 3px; 
+	-webkit-border-radius:3px; 
+	font-size: 13px;
+	font-family: arial, verdana;
+	margin-bottom: 10px;
+}
+#megasubscribepopup-aweber-message ul { margin: 0 0 0 15px !important; padding: 0; list-style: disc !important;}
+#megasubscribepopup-aweber-message ul li {line-height: 20px; color:#333; margin-top: 0px; margin-bottom: 0px;}
