@@ -1,11 +1,18 @@
 <?php
 class Elm_Plugin {
+	const MB_IN_BYTES = 1048576; //= 1024 * 1024
+
 	/**
 	 * @var scbOptions $settings Plugin settings.
 	 */
 	private $settings;
 	private $emailCronJob = null;
 	private $pluginFile = '';
+
+	/**
+	 * @var scbCron
+	 */
+	private $sizeNotificationCronJob = null;
 
 	public function __construct($pluginFile) {
 		$this->pluginFile = $pluginFile;
@@ -22,6 +29,17 @@ class Elm_Plugin {
 				'email_last_line_timestamp' => 0,
 				'timestamp_format' => 'M d, H:i:s',
 				'sort_order' => 'chronological',
+				'extra_filter_line_count' => 1000,
+
+				'enable_log_size_notification' => false,
+				'log_size_notification_threshold' => self::MB_IN_BYTES, //bytes
+				'log_size_check_interval' => 3600, //seconds,
+				'log_size_notification_sent' => false,
+
+				'dashboard_message_filter' => 'all',
+				'dashboard_message_filter_groups' => Elm_SeverityFilter::getAvailableOptions(),
+				'email_message_filter' => 'same_as_dashboard',
+				'email_message_filter_groups' => Elm_SeverityFilter::getAvailableOptions(),
 			)
 		);
 
@@ -41,6 +59,14 @@ class Elm_Plugin {
 				'callback' => array($this, 'emailErrors'),
 			)
 		);
+
+		$this->sizeNotificationCronJob = new scbCron(
+			$pluginFile,
+			array(
+				'interval' => $this->settings->get('log_size_check_interval'),
+				'callback' => array($this, 'checkLogFileSize')
+			)
+		);
 	}
 
 	public function loadTextDomain() {
@@ -55,6 +81,12 @@ class Elm_Plugin {
 			$this->emailCronJob->unschedule();
 		} else {
 			$this->emailCronJob->reschedule(array('interval' => $newSettings->get('email_interval')));
+		}
+
+		if ( !$newSettings->get('enable_log_size_notification') ) {
+			$this->sizeNotificationCronJob->unschedule();
+		} else {
+			$this->sizeNotificationCronJob->reschedule(array('interval' => $newSettings->get('log_size_check_interval')));
 		}
 	}
 
@@ -77,12 +109,15 @@ class Elm_Plugin {
 			return;
 		}
 
-		$lines = $log->readLastLines($this->settings->get('email_line_count'), true);
-		if ( is_wp_error($lines) ) {
+		$filteredLog = $this->getEmailEntries($log);
+
+		if ( is_wp_error($filteredLog) ) {
 			trigger_error('Error log is not accessible', E_USER_WARNING);
 			$lock->release();
 			return;
 		}
+
+		$lines = $filteredLog->readLastEntries($this->settings->get('email_line_count'));
 
 		//Only include messages logged since the previous email.
 		$logEntries = array();
@@ -107,8 +142,8 @@ class Elm_Plugin {
 				site_url()
 			);
 			$body = sprintf(
-				/* translators: 1: Site URL, 2: Number of lines, 3: Log file name */
-				__("New PHP errors have been logged on %1\$s\nHere are the last %2\$d lines from %3\$s:\n\n", 'error-log-monitor'),
+				/* translators: 1: Site URL, 2: Number of log entries, 3: Log file name */
+				__("New PHP errors have been logged on %1\$s\nHere are the last %2\$d entries from %3\$s:\n\n", 'error-log-monitor'),
 				site_url(),
 				count($logEntries),
 				$log->getFilename()
@@ -127,6 +162,17 @@ class Elm_Plugin {
 					$body .= '[' . $this->formatTimestamp($logEntry['timestamp']). '] ';
 				}
 				$body .= $logEntry['message'] . "\n";
+
+				//Include the stack trace. Note how this doesn't count towards the line limit.
+				if ( !empty($logEntry['stacktrace']) ) {
+					foreach($logEntry['stacktrace'] as $traceItem) {
+						$body .= "\t" . $traceItem . "\n";
+					}
+				}
+			}
+
+			if ( $filteredLog->getSkippedEntryCount() > 0 ) {
+				$body .= "\n\n" . $filteredLog->formatSkippedEntryCount() . "\n\n";
 			}
 
 			if ( wp_mail($this->settings->get('send_errors_to_email'), $subject, $body) ) {
@@ -139,11 +185,138 @@ class Elm_Plugin {
 		$lock->release();
 	}
 
+	/**
+	 * @param Elm_PhpErrorLog $log
+	 * @return Elm_SeverityFilter|WP_Error
+	 */
+	public function getWidgetEntries(Elm_PhpErrorLog $log) {
+		return $this->getFilteredEntries(
+			$log,
+			$this->getIncludedGroupsForDashboard(),
+			$this->settings->get('widget_line_count')
+		);
+	}
+
+	/**
+	 * @param Elm_PhpErrorLog $log
+	 * @return Elm_SeverityFilter|WP_Error
+	 */
+	private function getEmailEntries(Elm_PhpErrorLog $log) {
+		return $this->getFilteredEntries(
+			$log,
+			$this->getIncludedGroupsForEmail(),
+			$this->settings->get('email_line_count')
+		);
+	}
+
+	/**
+	 * Get a filtering iterator over log entries.
+	 *
+	 * @param Elm_PhpErrorLog $log
+	 * @param array $includedGroups
+	 * @param int $desiredEntryCount
+	 * @return Elm_SeverityFilter|WP_Error
+	 */
+	private function getFilteredEntries(Elm_PhpErrorLog $log, $includedGroups, $desiredEntryCount) {
+		$maxLinesToRead = $desiredEntryCount + $this->settings->get('extra_filter_line_count');
+
+		$logIterator = $log->getIterator($maxLinesToRead);
+		if ( is_wp_error($logIterator) ) {
+			return $logIterator;
+		}
+
+		$filteredLog = new Elm_SeverityFilter($logIterator, $includedGroups);
+		return $filteredLog;
+	}
+
+	private function getIncludedGroupsForDashboard() {
+		if ( $this->settings->get('dashboard_message_filter') === 'all' ) {
+			return Elm_SeverityFilter::getAvailableOptions();
+		} else {
+			return $this->settings->get('dashboard_message_filter_groups');
+		}
+	}
+
+	private function getIncludedGroupsForEmail() {
+		if ( $this->settings->get('email_message_filter') === 'same_as_dashboard' ) {
+			return $this->getIncludedGroupsForDashboard();
+		} else {
+			return $this->settings->get('email_message_filter_groups');
+		}
+	}
+
 	public function stripWpPath($string) {
 		return str_replace(rtrim(ABSPATH, '/\\'), '', $string);
 	}
 
 	public function formatTimestamp($timestamp) {
 		return gmdate($this->settings->get('timestamp_format'), $timestamp);
+	}
+
+	public function checkLogFileSize() {
+		if ( !$this->settings->get('enable_log_size_notification') ) {
+			return;
+		}
+
+		$log = Elm_PhpErrorLog::autodetect();
+		if ( is_wp_error($log) ) {
+			return;
+		}
+
+		$lock = new Elm_ExclusiveLock('elm-email-errors');
+		$lock->acquire();
+
+		//Don't send multiple notifications about log size.
+		if ( $this->settings->get('log_size_notification_sent') ) {
+			return;
+		}
+
+		if ( $log->getFileSize() >= $this->settings->get('log_size_notification_threshold') ) {
+			$subject = sprintf(
+				/* translators: 1: File size limit, 2: Site URL */
+				__('PHP error log file size has exceeded %1$s on %2$s', 'error-log-monitor'),
+				self::formatByteCount($this->settings->get('log_size_notification_threshold'), 0),
+				site_url()
+			);
+			$body = sprintf(
+				/* translators: 1: Site URL, 2: Log file name, 3: Log file size */
+				__("Site URL: %1\$s\nLog file: %2\$s\nSize: %3\$s\n", 'error-log-monitor'),
+				site_url(),
+				$log->getFilename(),
+				self::formatByteCount($log->getFileSize())
+			);
+
+			if ( wp_mail($this->settings->get('send_errors_to_email'), $subject, $body) ) {
+				$this->settings->set('log_size_notification_sent', true);
+			} else{
+				trigger_error('Failed to send an email, wp_mail() returned FALSE', E_USER_WARNING);
+			}
+		}
+
+		$lock->release();
+	}
+
+	/**
+	 * Convert an amount of data in bytes to a more human-readable format like KiB or MiB.
+	 *
+	 * @link http://www.php.net/manual/en/function.filesize.php#91477
+	 * @param int $bytes
+	 * @param int $precision
+	 * @return string
+	 */
+	public static function formatByteCount($bytes, $precision = 2) {
+		$units = array('bytes', 'KiB', 'MiB', 'GiB', 'TiB'); //SI units.
+
+		$bytes = max($bytes, 0);
+		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+		$pow = min($pow, count($units) - 1);
+
+		$size = $bytes / pow(1024, $pow);
+
+		return round($size, $precision) . ' ' . $units[$pow];
+	}
+
+	public function getPluginFile() {
+		return $this->pluginFile;
 	}
 }
