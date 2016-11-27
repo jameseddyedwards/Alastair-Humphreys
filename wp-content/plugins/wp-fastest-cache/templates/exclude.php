@@ -14,12 +14,6 @@
 	    padding:9px;
 		outline:none !important;
 		list-style: outside none none;
-	    border: 1px solid #CCCCCC !important;
-	    background: url(data:image/gif;base64,R0lGODlhAQAkANUAAAAAAP/////+//38/fb19vX09fDv8Pr6+/n5+vb29/Hx8u/v8Pv8/Pn6+vLz8vv7+vj49/T08/Pz8vLy8f/+/v38/Pn4+PHw8P7+/v39/fv7+/j4+Pf39/b29vPz8/Hx8fDw8P///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAACEALAAAAAABACQAAAYiwICAgsFkMpUBQ/M4IBqWDYST6BAKhYjHIZkoPp8LaGEIAgA7) repeat-x scroll center bottom transparent !important;
-	}
-	.wpfc-exclude-item:hover{
-	    border:1px solid #ccc;
-	    background:#f5f5f5 none repeat scroll 0 0 !important;
 	}
 	.star{
 	    float:left;
@@ -151,10 +145,10 @@
 			this.click_event_for_add_button();
 			this.reorder();
 		},
-		remove_rule: function(number){
+		remove_rule: function(clone_modal_id, number){
 			jQuery("div.wpfc-exclude-item[wpfc-exclude-item-number='" + number + "']").remove();
 			jQuery("div.wpfc-exclude-rule-line[wpfc-exclude-rule-number='" + number + "']").remove();
-			Wpfc_Dialog.remove();
+			Wpfc_Dialog.remove(clone_modal_id, number);
 
 			this.save(function(){});
 		},
@@ -204,6 +198,8 @@
 					clone_modal.find(".wpfc-condition-text").text("If User-Agent");
 				}else if(e.type == "css"){
 					clone_modal.find(".wpfc-condition-text").text("If CSS Url");
+				}else if(e.type == "js"){
+					clone_modal.find(".wpfc-condition-text").text("If JS Url");
 				}
 
 				jQuery("#wpfc-modal-exclude").after(clone_modal);
@@ -211,11 +207,10 @@
 				if(typeof e.editable == "undefined"){
 					Wpfc_Dialog.dialog(clone_modal_id, {"close" : 
 						function(){
-							Wpfc_Dialog.remove();
 						},
 						"remove" : 
 						function(){
-							self.remove_rule(number);
+							self.remove_rule(clone_modal_id, number);
 						},
 						"finish" :
 						function(){
@@ -227,7 +222,7 @@
 							jQuery("div.wpfc-exclude-rule-line[wpfc-exclude-rule-number='" + number + "']").find("input[name='wpfc-exclude-rule-content-" + number + "']").val(content);
 
 							if(self.is_empty_values(prefix, content)){
-								Wpfc_Dialog.remove();
+								Wpfc_Dialog.remove(clone_modal_id);
 
 								self.save(function(){
 									jQuery("div.wpfc-exclude-item[wpfc-exclude-item-number='" + number + "']").attr("prefix", prefix);
@@ -243,7 +238,7 @@
 						}
 					});
 				}else if(e.editable == false){
-					Wpfc_Dialog.dialog(clone_modal_id, {"close" : function(){Wpfc_Dialog.remove();}});
+					Wpfc_Dialog.dialog(clone_modal_id, {"close" : function(){}});
 				}
 			});
 			
@@ -283,7 +278,7 @@
 					request_uri = "";
 				}
 
-				if(type == "page" || type == "css"){
+				if(type == "page" || type == "css" || type == "js"){
 					return "<?php echo home_url();?>" + "/" + request_uri;
 				}else if(type == "useragent"){
 					return "User-Agent: " + request_uri;
@@ -327,6 +322,8 @@
 						clone_modal.find(".wpfc-condition-text").text("If User-Agent");
 					}else if(clone_modal_type == "css"){
 						clone_modal.find(".wpfc-condition-text").text("If CSS Url");
+					}else if(clone_modal_type == "js"){
+						clone_modal.find(".wpfc-condition-text").text("If JS Url");
 					}
 				}
 
@@ -358,7 +355,7 @@
 						if(self.is_empty_values(prefix, content)){
 							self.add_line(number + 1, {"prefix" : prefix, "content" : content, "type" : type});
 
-							Wpfc_Dialog.remove();
+							Wpfc_Dialog.remove(clone_modal_id);
 							
 							self.save(function(){
 								self.add_item(number + 1, {"prefix" : prefix, "content" : content, "type" : type});
@@ -367,7 +364,6 @@
 					},
 					"close" : 
 					function(){
-						Wpfc_Dialog.remove();
 					}
 				});
 			});

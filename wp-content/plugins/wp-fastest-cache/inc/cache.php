@@ -21,6 +21,38 @@
 			$this->set_cache_file_path();
 
 			$this->set_exclude_rules();
+
+			$this->set_content_url();
+		}
+
+		public function set_content_url(){
+			$content_url = content_url();
+
+			// Hide My WP
+			if($this->isPluginActive('hide_my_wp/hide-my-wp.php')){
+				$hide_my_wp = get_option("hide_my_wp");
+
+				if(isset($hide_my_wp["new_content_path"]) && $hide_my_wp["new_content_path"]){
+					$hide_my_wp["new_content_path"] = trim($hide_my_wp["new_content_path"], "/");
+					$content_url = str_replace("wp-content", $hide_my_wp["new_content_path"], $content_url);
+				}
+			}
+
+			// WP Hide & Security Enhancer
+			if($this->isPluginActive('wp-hide-security-enhancer/wp-hide.php')){
+				$wph_settings = get_option("wph_settings");
+
+				if(isset($wph_settings["module_settings"])){
+					if(isset($wph_settings["module_settings"]["new_content_path"]) && $wph_settings["module_settings"]["new_content_path"]){
+						$wph_settings["module_settings"]["new_content_path"] = trim($wph_settings["module_settings"]["new_content_path"], "/");
+						$content_url = str_replace("wp-content", $wph_settings["module_settings"]["new_content_path"], $content_url);
+					}
+				}
+			}
+
+			if (!defined('WPFC_WP_CONTENT_URL')) {
+				define("WPFC_WP_CONTENT_URL", $content_url);
+			}
 		}
 
 		public function set_exclude_rules(){
@@ -52,25 +84,46 @@
 			}
 
 			$this->cacheFilePath = $this->cacheFilePath ? rtrim($this->cacheFilePath, "/")."/" : "";
+
+			if(strlen($_SERVER["REQUEST_URI"]) > 1){ // for the sub-pages
+				if(!preg_match("/\.html/i", $_SERVER["REQUEST_URI"])){
+					if($this->is_trailing_slash()){
+						if(!preg_match("/\/$/", $_SERVER["REQUEST_URI"])){
+							$this->cacheFilePath = false;
+						}
+					}else{
+						//toDo
+					}
+				}
+			} 
 		}
 
 		public function set_cdn(){
 			$cdn_values = get_option("WpFastestCacheCDN");
 			if($cdn_values){
-				$std = json_decode($cdn_values);
+				$std_obj = json_decode($cdn_values);
+				$arr = array();
 
-				$std->originurl = trim($std->originurl);
-				$std->originurl = trim($std->originurl, "/");
-				$std->originurl = preg_replace("/http(s?)\:\/\/(www\.)?/i", "", $std->originurl);
+				if(is_array($std_obj)){
+					$arr = $std_obj;
+				}else{
+					array_push($arr, $std_obj);
+				}
 
-				$std->cdnurl = trim($std->cdnurl);
-				$std->cdnurl = trim($std->cdnurl, "/");
-				
-				if(!preg_match("/https\:\/\//", $std->cdnurl)){
-					$std->cdnurl = "//".preg_replace("/http(s?)\:\/\/(www\.)?/i", "", $std->cdnurl);
+				foreach ($arr as $key => &$std) {
+					$std->originurl = trim($std->originurl);
+					$std->originurl = trim($std->originurl, "/");
+					$std->originurl = preg_replace("/http(s?)\:\/\/(www\.)?/i", "", $std->originurl);
+
+					$std->cdnurl = trim($std->cdnurl);
+					$std->cdnurl = trim($std->cdnurl, "/");
+					
+					if(!preg_match("/https\:\/\//", $std->cdnurl)){
+						$std->cdnurl = "//".preg_replace("/http(s?)\:\/\/(www\.)?/i", "", $std->cdnurl);
+					}
 				}
 				
-				$this->cdn = $std;
+				$this->cdn = $arr;
 			}
 		}
 
@@ -106,7 +159,11 @@
 				}
 
 				if(preg_match("/\?/", $_SERVER["REQUEST_URI"]) && !preg_match("/\/\?fdx\_switcher\=true/", $_SERVER["REQUEST_URI"])){ // for WP Mobile Edition
-					return 0;
+					if(defined('WPFC_CACHE_QUERYSTRING') && WPFC_CACHE_QUERYSTRING){
+						//
+					}else{
+						return 0;
+					}
 				}
 
 				if(preg_match("/(".$this->get_excluded_useragent().")/", $_SERVER['HTTP_USER_AGENT'])){
@@ -146,6 +203,10 @@
 
 				if($this->exclude_page()){
 					//echo "<!-- Wp Fastest Cache: Exclude Page -->"."\n";
+					return 0;
+				}
+
+				if(preg_match("/Empty\sUser\sAgent/i", $_SERVER['HTTP_USER_AGENT'])){ // not to show the cache for command line
 					return 0;
 				}
 
@@ -220,8 +281,9 @@
 						$woocommerce_ids = array();
 
 						//wc_get_page_id('product')
+						//wc_get_page_id('product-category')
 						
-						array_push($woocommerce_ids, wc_get_page_id('cart'), wc_get_page_id('checkout'), wc_get_page_id('receipt'), wc_get_page_id('confirmation'), wc_get_page_id('product-category'));
+						array_push($woocommerce_ids, wc_get_page_id('cart'), wc_get_page_id('checkout'), wc_get_page_id('receipt'), wc_get_page_id('confirmation'));
 
 						if (in_array($page_id[1], $woocommerce_ids)) {
 							return true;
@@ -230,8 +292,9 @@
 				}
 
 				//"\/product"
+				//"\/product-category"
 
-				array_push($list, "\/cart", "\/checkout", "\/receipt", "\/confirmation", "\/product-category", "\/wc-api\/");
+				array_push($list, "\/cart", "\/checkout", "\/receipt", "\/confirmation", "\/wc-api\/");
 			}
 
 			if(preg_match("/".implode("|", $list)."/i", $_SERVER["REQUEST_URI"])){
@@ -294,7 +357,9 @@
 		public function callback($buffer){
 			$buffer = $this->checkShortCode($buffer);
 
-			if(preg_match("/Mediapartners-Google|Google\sWireless\sTranscoder/i", $_SERVER['HTTP_USER_AGENT'])){
+			if(!$this->cacheFilePath){
+				return $buffer."<!-- permalink_structure ends with slash (/) but REQUEST_URI does not end with slash (/) -->";
+			}else if(preg_match("/Mediapartners-Google|Google\sWireless\sTranscoder/i", $_SERVER['HTTP_USER_AGENT'])){
 				return $buffer;
 			}else if($this->is_xml($buffer)){
 				return $buffer;
@@ -332,6 +397,20 @@
 				return $buffer;
 			}else{				
 				$content = $buffer;
+
+				if(isset($this->options->wpFastestCacheRenderBlocking) && method_exists("WpFastestCachePowerfulHtml", "render_blocking")){
+					if(class_exists("WpFastestCachePowerfulHtml")){
+						if(!$this->is_amp($content)){
+							$powerful_html = new WpFastestCachePowerfulHtml();
+
+							if(isset($this->options->wpFastestCacheRenderBlockingCss)){
+								$content = $powerful_html->render_blocking($content, true);
+							}else{
+								$content = $powerful_html->render_blocking($content);
+							}
+						}
+					}
+				}
 
 				if(isset($this->options->wpFastestCacheCombineCss)){
 					require_once "css-utilities.php";
@@ -372,7 +451,10 @@
 				}
 
 				if(class_exists("WpFastestCachePowerfulHtml")){
-					$powerful_html = new WpFastestCachePowerfulHtml();
+					if(!isset($powerful_html)){
+						$powerful_html = new WpFastestCachePowerfulHtml();
+					}
+
 					$powerful_html->set_html($content);
 
 					if(isset($this->options->wpFastestCacheCombineJsPowerFul) && method_exists("WpFastestCachePowerfulHtml", "combine_js_in_footer")){
@@ -392,7 +474,7 @@
 					}
 
 					if(isset($this->options->wpFastestCacheMinifyJs) && method_exists("WpFastestCachePowerfulHtml", "minify_js_in_body")){
-						$content = $powerful_html->minify_js_in_body($this);
+						$content = $powerful_html->minify_js_in_body($this, $this->exclude_rules);
 					}
 				}
 
@@ -407,12 +489,12 @@
 						// url()
 						$content = preg_replace_callback("/(url)\(([^\)]+)\)/i", array($this, 'cdn_replace_urls'), $content);
 					}
+					
+					if(isset($this->options->wpFastestCacheLazyLoad)){
+						include_once plugin_dir_path( __FILE__ )."pro/library/lazy-load.php";
 
-					if(isset($this->options->wpFastestCacheRenderBlocking) && method_exists("WpFastestCachePowerfulHtml", "render_blocking")){
-						if(isset($this->options->wpFastestCacheRenderBlockingCss)){
-							$content = $powerful_html->render_blocking($content, true);
-						}else{
-							$content = $powerful_html->render_blocking($content);
+						if(method_exists("WpFastestCacheLazyLoad", "images_to_lazyload")){
+							$content = WpFastestCacheLazyLoad::images_to_lazyload($content, $this->options->wpFastestCacheLazyLoad_type);
 						}
 					}
 					
@@ -529,6 +611,16 @@
 									}
 				   				}
 
+				   				if($extension == "html"){
+				   					if(!file_exists(WPFC_WP_CONTENT_DIR."/cache/index.html")){
+				   						@file_put_contents(WPFC_WP_CONTENT_DIR."/cache/index.html", "");
+				   					}
+				   				}else{
+				   					if(!file_exists(WPFC_WP_CONTENT_DIR."/cache/wpfc-minified/index.html")){
+				   						@file_put_contents(WPFC_WP_CONTENT_DIR."/cache/wpfc-minified/index.html", "");
+				   					}
+				   				}
+
 							}else{
 							}
 						}else{
@@ -573,6 +665,21 @@
 			}
 
 			return $content;
+		}
+
+		public function is_amp($content){
+			$request_uri = trim($_SERVER["REQUEST_URI"], "/");
+
+			// https://wordpress.org/plugins/amp/
+			if($this->isPluginActive('amp/amp.php')){
+				if(preg_match("/amp$/", $request_uri)){
+					if(preg_match("/<html[^\>]+amp[^\>]*>/i", $content)){
+						return true;
+					}
+				}
+			}
+
+			return false;
 		}
 
 		public function isMobile(){
